@@ -4,7 +4,7 @@ import time
 from typing import Optional
 
 import httpx
-from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi import FastAPI, Depends, HTTPException, Request, Body
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -32,6 +32,8 @@ app.add_middleware(
         "http://127.0.0.1:5173",
         "http://localhost:5000",
         "http://127.0.0.1:5000",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -216,6 +218,103 @@ async def _proxy_request(request: Request, target_base: str, target_path: str) -
 
     content_type = resp.headers.get("content-type", "application/json")
     return Response(content=resp.content, status_code=resp.status_code, media_type=content_type)
+
+
+def _ensure_plugin_row(db: Session, slug: str):
+    plugin = db.get(Plugin, slug)
+    if not plugin:
+        plugin = Plugin(
+            plugin_id=slug,                 # use slug as plugin_id for tracking
+            name=slug,
+            role="runtime_plugin",
+            declared_intent="run",
+            trust_score=INITIAL_TRUST_SCORE,
+            status="active",
+            service_base_url=""
+        )
+        db.add(plugin)
+        db.commit()
+        db.refresh(plugin)
+    return plugin
+
+
+@app.post("/core/plugins/start")
+async def proxy_plugins_start(request: Request, db: Session = Depends(get_db)):
+    payload = await request.json()
+    slug = payload.get("slug", "unknown")
+
+    _ensure_plugin_row(db, slug)
+
+    start = time.perf_counter()
+    resp = await _proxy_request(request, CORE_SYSTEM_URL, "/core/plugins/start")
+    latency_ms = (time.perf_counter() - start) * 1000.0
+
+    db.add(RequestLog(
+        plugin_id=slug,
+        path="/core/plugins/start",
+        method="POST",
+        status_code=resp.status_code,
+        latency_ms=latency_ms,
+        error_flag=resp.status_code >= 400,
+    ))
+    db.commit()
+
+    update_plugin_trust(db, slug)
+    return resp
+
+
+@app.post("/core/plugins/run")
+async def proxy_plugins_run(request: Request, db: Session = Depends(get_db)):
+    payload = await request.json()
+    slug = payload.get("slug", "unknown")
+
+    plugin = _ensure_plugin_row(db, slug)
+
+    # Optional enforcement (only if you want):
+    if plugin.status == "blocked":
+        raise HTTPException(status_code=403, detail="Plugin blocked by trust policy")
+
+    start = time.perf_counter()
+    resp = await _proxy_request(request, CORE_SYSTEM_URL, "/core/plugins/run")
+    latency_ms = (time.perf_counter() - start) * 1000.0
+
+    db.add(RequestLog(
+        plugin_id=slug,
+        path="/core/plugins/run",
+        method="POST",
+        status_code=resp.status_code,
+        latency_ms=latency_ms,
+        error_flag=resp.status_code >= 400,
+    ))
+    db.commit()
+
+    update_plugin_trust(db, slug)
+    return resp
+
+
+@app.post("/core/plugins/stop")
+async def proxy_plugins_stop(request: Request, db: Session = Depends(get_db)):
+    payload = await request.json()
+    slug = payload.get("slug", "unknown")
+
+    _ensure_plugin_row(db, slug)
+
+    start = time.perf_counter()
+    resp = await _proxy_request(request, CORE_SYSTEM_URL, "/core/plugins/stop")
+    latency_ms = (time.perf_counter() - start) * 1000.0
+
+    db.add(RequestLog(
+        plugin_id=slug,
+        path="/core/plugins/stop",
+        method="POST",
+        status_code=resp.status_code,
+        latency_ms=latency_ms,
+        error_flag=resp.status_code >= 400,
+    ))
+    db.commit()
+
+    update_plugin_trust(db, slug)
+    return resp
 
 
 @app.api_route("/core/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
