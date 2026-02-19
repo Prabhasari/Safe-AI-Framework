@@ -13,20 +13,29 @@ type AiUmlResponse = {
   error?: string | null;
 };
 
-type Props = {
-  /** Generated code (fallback when CIR is not available) */
-  code?: string | null;
-  /** CIR object from rule-based UML service (preferred input) */
-  cir?: unknown | null;
-
-  /** AI UML service endpoint, e.g. http://localhost:7081/uml/ai */
-  umlAiApi: string;
-
-  /** Optional: section title */
-  title?: string;
+export type AiUmlResult = {
+  diagram_type: DiagramType;
+  svg: string | null;
+  plantuml: string;
 };
 
-export default function AiUmlPanel({ code, cir, umlAiApi, title = "🤖 AI UML (Experimental – LLM-based diagrams)" }: Props) {
+type Props = {
+  code?: string | null;
+  cir?: unknown | null;
+  umlAiApi: string;
+  title?: string;
+
+  /** ✅ NEW: Send AI UML output to parent */
+  onResult?: (r: AiUmlResult) => void;
+};
+
+export default function AiUmlPanel({
+  code,
+  cir,
+  umlAiApi,
+  title = "🤖 AI UML (Experimental – LLM-based diagrams)",
+  onResult,
+}: Props) {
   const [aiDiagramType, setAiDiagramType] = useState<DiagramType>("class");
   const [aiSvg, setAiSvg] = useState<string | null>(null);
   const [aiPlantuml, setAiPlantuml] = useState<string | null>(null);
@@ -35,7 +44,7 @@ export default function AiUmlPanel({ code, cir, umlAiApi, title = "🤖 AI UML (
 
   const sourceLabel = useMemo(() => (cir ? "CIR" : "Code"), [cir]);
 
-  const onGenerateAiUml = async () => {
+    const onGenerateAiUml = async () => {
     if (!code && !cir) {
       alert("Please generate code first, then request AI UML.");
       return;
@@ -47,10 +56,6 @@ export default function AiUmlPanel({ code, cir, umlAiApi, title = "🤖 AI UML (
     setAiPlantuml(null);
 
     try {
-      /**
-       * CIR-first payload:
-       * UMLAIRequest { diagram_type, cir?: dict, code?: str }
-       */
       const payload: {
         diagram_type: DiagramType;
         cir?: unknown | null;
@@ -61,7 +66,6 @@ export default function AiUmlPanel({ code, cir, umlAiApi, title = "🤖 AI UML (
         code: cir ? null : code ?? null,
       };
 
-      // Helpful debug eslint-disable-next-line no-console
       console.log("AI UML payload:", payload);
 
       const res = await fetch(umlAiApi, {
@@ -76,15 +80,22 @@ export default function AiUmlPanel({ code, cir, umlAiApi, title = "🤖 AI UML (
       }
 
       const data: AiUmlResponse = await res.json();
-
       if (data.error) throw new Error(data.error);
 
-      setAiSvg(data.svg ?? null);
+      const svg = data.svg ?? null;
+      setAiSvg(svg);
       setAiPlantuml(data.plantuml);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
+
+      onResult?.({ diagram_type: data.diagram_type, svg, plantuml: data.plantuml });
+    } catch (err) {
       console.error(err);
-      setAiError(err?.message || "Failed to generate AI UML diagram.");
+      const msg =
+        err instanceof Error
+          ? err.message
+          : typeof err === "string"
+          ? err
+          : "Failed to generate AI UML diagram.";
+      setAiError(msg);
     } finally {
       setAiLoading(false);
     }
@@ -92,14 +103,7 @@ export default function AiUmlPanel({ code, cir, umlAiApi, title = "🤖 AI UML (
 
   return (
     <div style={{ marginTop: 24 }}>
-      <h2
-        style={{
-          margin: "0 0 12px 0",
-          fontSize: 18,
-          fontWeight: 600,
-          color: "#1e293b",
-        }}
-      >
+      <h2 style={{ margin: "0 0 12px 0", fontSize: 18, fontWeight: 600, color: "#1e293b" }}>
         {title}
       </h2>
 
@@ -131,15 +135,7 @@ export default function AiUmlPanel({ code, cir, umlAiApi, title = "🤖 AI UML (
           </div>
         ) : (
           <>
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 12,
-                alignItems: "center",
-                marginBottom: 16,
-              }}
-            >
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", marginBottom: 16 }}>
               <div style={{ fontSize: 13, color: "#475569", marginRight: 8 }}>Diagram type</div>
 
               <select
@@ -196,54 +192,15 @@ export default function AiUmlPanel({ code, cir, umlAiApi, title = "🤖 AI UML (
             </div>
 
             {aiError && (
-              <div
-                style={{
-                  padding: 12,
-                  background: "#fef2f2",
-                  borderRadius: 6,
-                  color: "#991b1b",
-                  fontSize: 13,
-                  marginBottom: 12,
-                }}
-              >
+              <div style={{ padding: 12, background: "#fef2f2", borderRadius: 6, color: "#991b1b", fontSize: 13, marginBottom: 12 }}>
                 {aiError}
               </div>
             )}
 
             {aiSvg ? (
-              <div
-                style={{
-                  marginTop: 8,
-                  borderRadius: 8,
-                  border: "1px solid #e2e8f0",
-                  background: "#f8fafc",
-                  padding: 12,
-                }}
-              >
-                <div
-                  style={{
-                    marginBottom: 8,
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: "#0f172a",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                  }}
-                >
-                  <span>AI-generated {aiDiagramType} diagram</span>
-                  <span
-                    style={{
-                      padding: "2px 8px",
-                      borderRadius: 999,
-                      fontSize: 11,
-                      background: "#e0f2fe",
-                      color: "#0369a1",
-                      border: "1px solid #bae6fd",
-                    }}
-                  >
-                    LLM-based
-                  </span>
+              <div style={{ marginTop: 8, borderRadius: 8, border: "1px solid #e2e8f0", background: "#f8fafc", padding: 12 }}>
+                <div style={{ marginBottom: 8, fontSize: 13, fontWeight: 600, color: "#0f172a" }}>
+                  AI-generated {aiDiagramType} diagram
                 </div>
 
                 <div
@@ -259,32 +216,16 @@ export default function AiUmlPanel({ code, cir, umlAiApi, title = "🤖 AI UML (
                 />
               </div>
             ) : !aiLoading && !aiError ? (
-              <div
-                style={{
-                  padding: 12,
-                  background: "#f1f5f9",
-                  borderRadius: 6,
-                  color: "#64748b",
-                  fontSize: 13,
-                }}
-              >
+              <div style={{ padding: 12, background: "#f1f5f9", borderRadius: 6, color: "#64748b", fontSize: 13 }}>
                 No AI UML diagram yet. Choose a type and click <strong>Generate AI UML</strong>.
               </div>
             ) : null}
 
             {aiPlantuml && (
               <details style={{ marginTop: 12, fontSize: 12 }}>
-                <summary
-                  style={{
-                    cursor: "pointer",
-                    color: "#3b82f6",
-                    fontWeight: 600,
-                    userSelect: "none",
-                  }}
-                >
+                <summary style={{ cursor: "pointer", color: "#3b82f6", fontWeight: 600, userSelect: "none" }}>
                   View raw PlantUML generated by AI
                 </summary>
-
                 <pre
                   style={{
                     whiteSpace: "pre-wrap",
@@ -308,10 +249,7 @@ export default function AiUmlPanel({ code, cir, umlAiApi, title = "🤖 AI UML (
         )}
 
         <style>{`
-          .uml-svg svg {
-            width: 100% !important;
-            height: auto !important;
-          }
+          .uml-svg svg { width: 100% !important; height: auto !important; }
         `}</style>
       </div>
     </div>

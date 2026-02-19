@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { X, Box, Boxes, GitBranch, Eye } from "lucide-react";
 
-type DiagramType = "class" | "package" | "sequence" | "component";
+export type DiagramType = "class" | "package" | "sequence" | "component";
 
 type UmlValidation = {
   ok: boolean;
@@ -16,10 +16,32 @@ type UmlReport = {
   package_svg?: string | null;
   sequence_svg?: string | null;
   component_svg?: string | null;
-
-  // NEW: validation info per diagram (optional)
   validation?: Partial<Record<DiagramType, UmlValidation>>;
 };
+
+type AiUmlResponse = {
+  ok?: boolean;
+  diagram_type: DiagramType;
+  plantuml: string;
+  svg?: string | null;
+  error?: string | null;
+};
+
+export type AiUmlStore = Partial<
+  Record<DiagramType, { svg: string | null; plantuml?: string }>
+>;
+
+type UmlSource = "rule" | "ai";
+
+function errMsg(e: unknown): string {
+  if (e instanceof Error) return e.message;
+  if (typeof e === "string") return e;
+  try {
+    return JSON.stringify(e);
+  } catch {
+    return "Unknown error";
+  }
+}
 
 export default function UmlViewerModal({
   open,
@@ -27,28 +49,137 @@ export default function UmlViewerModal({
   tab,
   setTab,
   onClose,
+  code,
+  cir,
+  umlAiApi,
+  aiStore,
+  setAiStore,
 }: {
   open: boolean;
   uml: UmlReport;
   tab: DiagramType;
   setTab: React.Dispatch<React.SetStateAction<DiagramType>>;
   onClose: () => void;
-}) {
-  if (!open || !uml || uml.error) return null;
 
-  const validation = uml.validation || {};
+  /** AI generation inputs */
+  code: string | null;
+  cir: unknown | null;
+  umlAiApi: string;
+  aiStore: AiUmlStore;
+  setAiStore: React.Dispatch<React.SetStateAction<AiUmlStore>>;
+}) {
+
+  const [source, setSource] = useState<UmlSource>("rule");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+
+  // prevent duplicate in-flight requests per tab
+  const inflightRef = useRef<Partial<Record<DiagramType, boolean>>>({});
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const validation = uml?.validation || {};
   const vinfo = (k: DiagramType) => validation[k];
 
-  const tabEnabled = (k: DiagramType) => {
-    const hasSvg =
-      (k === "class" && !!uml.class_svg) ||
-      (k === "package" && !!uml.package_svg) ||
-      (k === "sequence" && !!uml.sequence_svg) ||
-      (k === "component" && !!uml.component_svg);
+  const ruleSvgs = useMemo(
+    () =>
+      ({
+        class: uml?.class_svg ?? null,
+        package: uml?.package_svg ?? null,
+        sequence: uml?.sequence_svg ?? null,
+        component: uml?.component_svg ?? null,
+      }) as Record<DiagramType, string | null>,
+    [uml]
+  );
 
-    const hasValidation = !!validation[k];
-    return hasSvg || hasValidation;
+  const aiSvgs = useMemo(
+    () =>
+      ({
+        class: aiStore.class?.svg ?? null,
+        package: aiStore.package?.svg ?? null,
+        sequence: aiStore.sequence?.svg ?? null,
+        component: aiStore.component?.svg ?? null,
+      }) as Record<DiagramType, string | null>,
+    [aiStore]
+  );
+
+  const hasAnyAi = useMemo(
+    () => Boolean(aiSvgs.class || aiSvgs.package || aiSvgs.sequence || aiSvgs.component),
+    [aiSvgs]
+  );
+
+  const effectiveSource: UmlSource = source === "ai" && !hasAnyAi ? "rule" : source;
+
+  const activeSvg = useMemo(() => {
+    return effectiveSource === "ai" ? aiSvgs[tab] : ruleSvgs[tab];
+  }, [effectiveSource, tab, aiSvgs, ruleSvgs]);
+
+  const tabEnabled = useMemo(() => {
+    return (k: DiagramType) => {
+      const ruleHasSvg = !!ruleSvgs[k];
+      const ruleHasValidation = !!validation[k];
+      const aiHasSvg = !!aiSvgs[k];
+      return ruleHasSvg || ruleHasValidation || aiHasSvg;
+    };
+  }, [aiSvgs, ruleSvgs, validation]);
+
+  const canGenerateAi = useMemo(() => Boolean(cir || code), [cir, code]);
+
+  const generateAiFor = async (k: DiagramType) => {
+    if (!canGenerateAi) {
+      setAiError("No code/CIR available to generate AI UML.");
+      return;
+    }
+    if (aiSvgs[k]) return;
+    if (inflightRef.current[k]) return;
+
+    inflightRef.current[k] = true;
+    setAiLoading(true);
+    setAiError(null);
+
+    try {
+      const payload: { diagram_type: DiagramType; cir?: unknown | null; code?: string | null } = {
+        diagram_type: k,
+        cir: cir ?? null,
+        code: cir ? null : code ?? null,
+      };
+
+      const res = await fetch(umlAiApi, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`HTTP ${res.status}: ${txt}`);
+      }
+
+      const data: AiUmlResponse = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      const svg = data.svg ?? null;
+
+      setAiStore((prev) => ({
+        ...prev,
+        [data.diagram_type]: { svg, plantuml: data.plantuml },
+      }));
+    } catch (e) {
+      setAiError(errMsg(e));
+    } finally {
+      inflightRef.current[k] = false;
+      setAiLoading(false);
+    }
   };
+
+  useEffect(() => {
+    if (!open) return;
+    if (source !== "ai") return;
+    if (aiSvgs[tab]) return;
+    void generateAiFor(tab);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, source, tab]);
+
+  if (!open || !uml || uml.error) return null;
 
   return (
     <div
@@ -69,17 +200,13 @@ export default function UmlViewerModal({
         style={{
           width: "100vw",
           height: "100vh",
-          maxWidth: "none",
-          maxHeight: "none",
           background: "#ffffff",
-          borderRadius: 0,
-          boxShadow: "none",
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
         }}
       >
-        {/* Modal header */}
+        {/* Header */}
         <div
           style={{
             padding: "16px 20px 12px 20px",
@@ -104,35 +231,104 @@ export default function UmlViewerModal({
             >
               <Eye size={18} color="#0369a1" />
             </div>
+
             <div>
               <div style={{ fontWeight: 700, fontSize: 16, color: "#0f172a" }}>
-                UML Viewer
+                UML Diagram Viewer
               </div>
               <div style={{ fontSize: 12, color: "#64748b" }}>
-                View generated diagrams
+                AI mode auto-generates per tab
               </div>
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            style={{
-              border: "1px solid #e2e8f0",
-              background: "#ffffff",
-              cursor: "pointer",
-              color: "#475569",
-              padding: 8,
-              borderRadius: 10,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-            aria-label="Close UML viewer"
-            title="Close"
-          >
-            <X size={18} />
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {/* Source toggle */}
+            <div
+              style={{
+                display: "inline-flex",
+                border: "1px solid #e2e8f0",
+                borderRadius: 999,
+                overflow: "hidden",
+                background: "#f8fafc",
+              }}
+            >
+              <button
+                onClick={() => setSource("rule")}
+                style={{
+                  padding: "8px 12px",
+                  border: "none",
+                  cursor: "pointer",
+                  background: effectiveSource === "rule" ? "#e0f2fe" : "transparent",
+                  color: effectiveSource === "rule" ? "#0369a1" : "#475569",
+                  fontWeight: 700,
+                  fontSize: 12,
+                }}
+              >
+                Rule-based
+              </button>
+
+              <button
+                onClick={() => {
+                  if (!canGenerateAi) {
+                    setAiError("Generate code first (code/CIR required for AI UML).");
+                    return;
+                  }
+                  setSource("ai");
+                  void generateAiFor(tab);
+                }}
+                disabled={!canGenerateAi}
+                style={{
+                  padding: "8px 12px",
+                  border: "none",
+                  cursor: !canGenerateAi ? "not-allowed" : "pointer",
+                  background: effectiveSource === "ai" ? "#dcfce7" : "transparent",
+                  color: effectiveSource === "ai" ? "#166534" : "#475569",
+                  fontWeight: 700,
+                  fontSize: 12,
+                  opacity: !canGenerateAi ? 0.5 : 1,
+                }}
+                title={!canGenerateAi ? "Generate code first" : "Switch to AI (auto-generates this tab)"}
+              >
+                AI-based
+              </button>
+            </div>
+
+            <button
+              onClick={onClose}
+              style={{
+                border: "1px solid #e2e8f0",
+                background: "#ffffff",
+                cursor: "pointer",
+                color: "#475569",
+                padding: 8,
+                borderRadius: 10,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              aria-label="Close UML viewer"
+              title="Close"
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
+
+        {/* Status row */}
+        {(aiError || (aiLoading && effectiveSource === "ai" && !aiSvgs[tab])) && (
+          <div
+            style={{
+              padding: "10px 16px",
+              background: aiError ? "#fef2f2" : "#f1f5f9",
+              borderBottom: "1px solid #e2e8f0",
+              color: aiError ? "#991b1b" : "#334155",
+              fontSize: 13,
+            }}
+          >
+            {aiError ? aiError : `Generating AI ${tab} diagram...`}
+          </div>
+        )}
 
         {/* Tabs */}
         <div
@@ -175,63 +371,26 @@ export default function UmlViewerModal({
         </div>
 
         {/* Content */}
-        <div
-          style={{
-            padding: 16,
-            flex: 1,
-            overflow: "hidden",
-            background: "#f8fafc",
-          }}
-        >
-          {tab === "class" &&
-            (uml.class_svg ? (
-              <DiagramCard title="Class Diagram" svg={uml.class_svg} />
-            ) : (
-              <ValidationCard title="Class Diagram" info={vinfo("class")} />
-            ))}
-
-          {tab === "package" &&
-            (uml.package_svg ? (
-              <DiagramCard title="Package Diagram" svg={uml.package_svg} />
-            ) : (
-              <ValidationCard title="Package Diagram" info={vinfo("package")} />
-            ))}
-
-          {tab === "sequence" &&
-            (uml.sequence_svg ? (
-              <DiagramCard title="Sequence Diagram" svg={uml.sequence_svg} />
-            ) : (
-              <ValidationCard title="Sequence Diagram" info={vinfo("sequence")} />
-            ))}
-
-          {tab === "component" &&
-            (uml.component_svg ? (
-              <DiagramCard title="Component Diagram" svg={uml.component_svg} />
-            ) : (
-              <ValidationCard title="Component Diagram" info={vinfo("component")} />
-            ))}
+        <div style={{ padding: 16, flex: 1, overflow: "hidden", background: "#f8fafc" }}>
+          {activeSvg ? (
+            <DiagramCard
+              title={`${effectiveSource === "ai" ? "AI" : "Rule"} • ${tab.toUpperCase()} Diagram`}
+              svg={activeSvg}
+            />
+          ) : effectiveSource === "rule" ? (
+            <ValidationCard title={`${tab.toUpperCase()} Diagram`} info={vinfo(tab)} />
+          ) : (
+            <EmptyCard
+              title={`${tab.toUpperCase()} Diagram (AI)`}
+              message={aiLoading ? "Generating AI diagram..." : "Click AI-based toggle to generate this tab."}
+            />
+          )}
         </div>
 
-        {/* SVG rendering tweaks + remove underline */}
         <style>{`
-          .uml-svg svg {
-            width: 100% !important;
-            height: auto !important;
-          }
-
-          /* ✅ Remove underline in PlantUML SVG */
-          .uml-svg svg text,
-          .uml-svg svg a,
-          .uml-svg svg a text {
-            text-decoration: none !important;
-          }
-
-          /* ✅ Prevent link-like styling */
-          .uml-svg svg a:link,
-          .uml-svg svg a:visited {
-            fill: inherit !important;
-            color: inherit !important;
-          }
+          .uml-svg svg { width: 100% !important; height: auto !important; }
+          .uml-svg svg text, .uml-svg svg a, .uml-svg svg a text { text-decoration: none !important; }
+          .uml-svg svg a:link, .uml-svg svg a:visited { fill: inherit !important; color: inherit !important; }
         `}</style>
       </div>
     </div>
@@ -271,15 +430,7 @@ function TabButton({
       }}
       title={label}
     >
-      <span
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        {icon}
-      </span>
+      {icon}
       <span>{label}</span>
     </button>
   );
@@ -299,17 +450,8 @@ function DiagramCard({ title, svg }: { title: string; svg: string }) {
         overflow: "hidden",
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 8,
-        }}
-      >
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>
-          {title}
-        </div>
+      <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", marginBottom: 8 }}>
+        {title}
       </div>
 
       <div
@@ -327,35 +469,27 @@ function DiagramCard({ title, svg }: { title: string; svg: string }) {
   );
 }
 
-function ValidationCard({
-  title,
-  info,
-}: {
-  title: string;
-  info?: { ok: boolean; errors: string[] };
-}) {
-  if (!info) {
-    return (
-      <div
-        style={{
-          height: "100%",
-          background: "#ffffff",
-          borderRadius: 10,
-          border: "1px solid #e2e8f0",
-          padding: 16,
-          color: "#64748b",
-          fontSize: 13,
-        }}
-      >
-        <div
-          style={{ fontWeight: 700, marginBottom: 8, color: "#0f172a" }}
-        >
-          {title}
-        </div>
-        No SVG available and no validation info was returned.
-      </div>
-    );
-  }
+function EmptyCard({ title, message }: { title: string; message: string }) {
+  return (
+    <div
+      style={{
+        height: "100%",
+        background: "#ffffff",
+        borderRadius: 10,
+        border: "1px solid #e2e8f0",
+        padding: 16,
+        color: "#64748b",
+        fontSize: 13,
+      }}
+    >
+      <div style={{ fontWeight: 700, marginBottom: 8, color: "#0f172a" }}>{title}</div>
+      {message}
+    </div>
+  );
+}
+
+function ValidationCard({ title, info }: { title: string; info?: { ok: boolean; errors: string[] } }) {
+  if (!info) return <EmptyCard title={title} message="No SVG available and no validation info was returned." />;
 
   return (
     <div
@@ -368,9 +502,7 @@ function ValidationCard({
         overflow: "auto",
       }}
     >
-      <div style={{ fontWeight: 700, marginBottom: 8, color: "#0f172a" }}>
-        {title}
-      </div>
+      <div style={{ fontWeight: 700, marginBottom: 8, color: "#0f172a" }}>{title}</div>
 
       <div
         style={{
@@ -389,38 +521,11 @@ function ValidationCard({
       </div>
 
       {!info.ok && (
-        <div style={{ marginTop: 10 }}>
-          <div
-            style={{
-              fontSize: 13,
-              fontWeight: 700,
-              color: "#991b1b",
-              marginBottom: 8,
-            }}
-          >
-            Validation errors:
-          </div>
-
-          <ul
-            style={{
-              margin: 0,
-              paddingLeft: 18,
-              color: "#475569",
-              fontSize: 13,
-              lineHeight: 1.6,
-            }}
-          >
-            {(info.errors || []).slice(0, 20).map((err, idx) => (
-              <li key={idx}>{err}</li>
-            ))}
-          </ul>
-
-          {(info.errors || []).length > 20 && (
-            <div style={{ marginTop: 8, fontSize: 12, color: "#64748b" }}>
-              Showing first 20 errors...
-            </div>
-          )}
-        </div>
+        <ul style={{ margin: 0, paddingLeft: 18, color: "#475569", fontSize: 13, lineHeight: 1.6 }}>
+          {(info.errors || []).slice(0, 20).map((err, idx) => (
+            <li key={idx}>{err}</li>
+          ))}
+        </ul>
       )}
 
       {info.ok && (
