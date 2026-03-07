@@ -1,0 +1,37 @@
+# Python caches / bytecode
+__pycache__/
+*.py[cod]
+
+# Virtual environments (never upload)
+.venv/
+venv/
+env/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Type checker / linter caches
+.mypy_cache/
+.ruff_cache/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# IDE / OS clutter
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Secrets / local configs (never upload)
+.env
+.env.*
+*.pem
+*.key
+secrets.*
+*.log

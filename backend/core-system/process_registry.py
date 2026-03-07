@@ -206,7 +206,7 @@ def _score_node_root(rel: Path) -> int:
     if "dev"   in scripts: score += 2
     if (root / "server.js").exists() or (root / "index.js").exists() or (root / "app.js").exists():
         score += 1
-    score -= len(rel.parts)  # prefer shallower
+    score -= len(rel.parts)
     return score
 
 def pick_best_node_root(candidates: List[Path]) -> Optional[Path]:

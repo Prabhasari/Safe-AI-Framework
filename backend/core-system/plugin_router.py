@@ -2,7 +2,8 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 import requests
 
-from plugin_manager import start_plugin_container, stop_plugin_container, get_plugin_host_port
+from plugin_manager import start_plugin_container, stop_plugin_container, get_plugin_host_port, PLUGINS_ROOT
+from interface_enforcer import enforce_interface
 
 router = APIRouter()
 
@@ -14,6 +15,20 @@ class StartPayload(BaseModel):
 
 @router.post("/start")
 def start_plugin(body: StartPayload):
+    # --- Guard: plugin folder must exist before enforcement ---
+    plugin_path = PLUGINS_ROOT / body.slug
+    if not plugin_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"Plugin '{body.slug}' not found in {PLUGINS_ROOT}"
+        )
+    # --- Interface Enforcement ---
+    plugin_path = PLUGINS_ROOT / body.slug
+    try:
+        enforce_interface(plugin_path)
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=f"Interface validation failed: {ve}")
+
     try:
         c = start_plugin_container(
             slug=body.slug,
@@ -28,6 +43,8 @@ def start_plugin(body: StartPayload):
             "host_port": host_port,
             "base_url": f"http://127.0.0.1:{host_port}"
         }
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -42,6 +59,21 @@ class RunPayload(BaseModel):
 
 @router.post("/run")
 def run_plugin(body: RunPayload):
+    # --- Interface Enforcement ---
+    plugin_path = PLUGINS_ROOT / body.slug
+
+    # --- Guard: plugin folder must exist before enforcement ---
+    if not plugin_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"Plugin '{body.slug}' not found in {PLUGINS_ROOT}"
+        )
+    
+    try:
+        enforce_interface(plugin_path)
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=f"Interface validation failed: {ve}")
+
     try:
         c = start_plugin_container(
             slug=body.slug,
@@ -58,7 +90,7 @@ def run_plugin(body: RunPayload):
             timeout=30
         )
 
-        # ✅ if runner fails, return its text/json in detail
+        # if runner fails, return its text/json in detail
         if r.status_code >= 400:
             raise HTTPException(
                 status_code=500,
@@ -73,6 +105,8 @@ def run_plugin(body: RunPayload):
 
     except HTTPException:
         raise
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

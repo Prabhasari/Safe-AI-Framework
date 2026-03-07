@@ -1,0 +1,170 @@
+[
+  {
+    "file": "21_multiline_declarations.java",
+    "language": "java",
+    "errors": [],
+    "pipeline_a": {
+      "classes": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 9,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 22,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "cir_counts": {
+      "classes": 3,
+      "fields": 8,
+      "methods": 9,
+      "rels": 2
+    },
+    "pipeline_b": {
+      "classes": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 6,
+        "fp": 0,
+        "fn": 2,
+        "recall": 75.0,
+        "precision": 100.0,
+        "f1": 85.7
+      },
+      "methods": {
+        "tp": 6,
+        "fp": 0,
+        "fn": 3,
+        "recall": 66.7,
+        "precision": 100.0,
+        "f1": 80.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 1,
+        "recall": 50.0,
+        "precision": 100.0,
+        "f1": 66.7
+      },
+      "depends_on": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 6,
+        "recall": 72.7,
+        "precision": 100.0,
+        "f1": 84.2
+      }
+    },
+    "cross_consistency": 72.7,
+    "baseline_gaps": {
+      "fields": {
+        "missed": [
+          "StudentRegistrar.semesterMap",
+          "StudentRegistrar.validator"
+        ],
+        "extra": []
+      },
+      "methods": {
+        "missed": [
+          "StudentRegistrar.getSemesterMap",
+          "StudentRegistrar.registerStudent",
+          "StudentRegistrar.validateAndSave"
+        ],
+        "extra": []
+      },
+      "associates": {
+        "missed": [
+          "StudentRegistrar->StudentValidator"
+        ],
+        "extra": []
+      }
+    },
+    "elapsed_s": 0.1
+  }
+]

@@ -1,0 +1,3042 @@
+[
+  {
+    "file": "01_student_baseline.java",
+    "language": "java",
+    "errors": [],
+    "cir_counts": {
+      "classes": 2,
+      "fields": 5,
+      "methods": 8,
+      "rels": 0
+    },
+    "cir_completeness": {
+      "classes": 100.0,
+      "fields": 100.0,
+      "methods": 100.0,
+      "rels": 100.0,
+      "overall": 100.0
+    },
+    "regex": {
+      "classes": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 5,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 15,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "ai": {
+      "classes": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 5,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 15,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "cross_consistency": 100.0,
+    "elapsed_s": 10.0
+  },
+  {
+    "file": "02_student_inheritance.java",
+    "language": "java",
+    "errors": [],
+    "cir_counts": {
+      "classes": 3,
+      "fields": 7,
+      "methods": 12,
+      "rels": 2
+    },
+    "cir_completeness": {
+      "classes": 100.0,
+      "fields": 100.0,
+      "methods": 100.0,
+      "rels": 100.0,
+      "overall": 100.0
+    },
+    "regex": {
+      "classes": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 7,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 12,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 24,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "ai": {
+      "classes": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 7,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 12,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 24,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "cross_consistency": 100.0,
+    "elapsed_s": 9.4
+  },
+  {
+    "file": "03_student_interface.java",
+    "language": "java",
+    "errors": [],
+    "cir_counts": {
+      "classes": 3,
+      "fields": 4,
+      "methods": 13,
+      "rels": 2
+    },
+    "cir_completeness": {
+      "classes": 100.0,
+      "fields": 100.0,
+      "methods": 100.0,
+      "rels": 100.0,
+      "overall": 100.0
+    },
+    "regex": {
+      "classes": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 13,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 22,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "ai": {
+      "classes": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 13,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 22,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "cross_consistency": 100.0,
+    "elapsed_s": 10.5
+  },
+  {
+    "file": "04_student_association.java",
+    "language": "java",
+    "errors": [],
+    "cir_counts": {
+      "classes": 2,
+      "fields": 7,
+      "methods": 9,
+      "rels": 2
+    },
+    "cir_completeness": {
+      "classes": 100.0,
+      "fields": 100.0,
+      "methods": 100.0,
+      "rels": 100.0,
+      "overall": 100.0
+    },
+    "regex": {
+      "classes": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 7,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 9,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 20,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "ai": {
+      "classes": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 7,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 9,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "recall": 0.0,
+        "precision": 100.0,
+        "f1": 0.0
+      },
+      "depends_on": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 19,
+        "fp": 0,
+        "fn": 1,
+        "recall": 95.0,
+        "precision": 100.0,
+        "f1": 97.4
+      }
+    },
+    "cross_consistency": 95.0,
+    "elapsed_s": 11.5
+  },
+  {
+    "file": "05_student_layered_system.java",
+    "language": "java",
+    "errors": [],
+    "cir_counts": {
+      "classes": 7,
+      "fields": 15,
+      "methods": 36,
+      "rels": 8
+    },
+    "cir_completeness": {
+      "classes": 100.0,
+      "fields": 83.3,
+      "methods": 100.0,
+      "rels": 100.0,
+      "overall": 100.0
+    },
+    "regex": {
+      "classes": {
+        "tp": 7,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 15,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 36,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 66,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "ai": {
+      "classes": {
+        "tp": 7,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 15,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 36,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 66,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "cross_consistency": 100.0,
+    "elapsed_s": 13.1
+  },
+  {
+    "file": "11_messy_ai_style.java",
+    "language": "java",
+    "errors": [],
+    "cir_counts": {
+      "classes": 3,
+      "fields": 8,
+      "methods": 11,
+      "rels": 3
+    },
+    "cir_completeness": {
+      "classes": 100.0,
+      "fields": 100.0,
+      "methods": 100.0,
+      "rels": 100.0,
+      "overall": 100.0
+    },
+    "regex": {
+      "classes": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 11,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 25,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "ai": {
+      "classes": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 11,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "recall": 0.0,
+        "precision": 100.0,
+        "f1": 0.0
+      },
+      "overall": {
+        "tp": 24,
+        "fp": 0,
+        "fn": 1,
+        "recall": 96.0,
+        "precision": 100.0,
+        "f1": 98.0
+      }
+    },
+    "cross_consistency": 96.0,
+    "elapsed_s": 9.1
+  },
+  {
+    "file": "12_complex_generics.java",
+    "language": "java",
+    "errors": [],
+    "cir_counts": {
+      "classes": 3,
+      "fields": 9,
+      "methods": 13,
+      "rels": 4
+    },
+    "cir_completeness": {
+      "classes": 100.0,
+      "fields": 100.0,
+      "methods": 100.0,
+      "rels": 100.0,
+      "overall": 100.0
+    },
+    "regex": {
+      "classes": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 9,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 13,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 29,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "ai": {
+      "classes": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 9,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 13,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 1,
+        "recall": 66.7,
+        "precision": 100.0,
+        "f1": 80.0
+      },
+      "overall": {
+        "tp": 28,
+        "fp": 0,
+        "fn": 1,
+        "recall": 96.6,
+        "precision": 100.0,
+        "f1": 98.3
+      }
+    },
+    "cross_consistency": 96.6,
+    "elapsed_s": 10.5
+  },
+  {
+    "file": "13_deep_inheritance.java",
+    "language": "java",
+    "errors": [],
+    "cir_counts": {
+      "classes": 5,
+      "fields": 10,
+      "methods": 22,
+      "rels": 4
+    },
+    "cir_completeness": {
+      "classes": 100.0,
+      "fields": 76.9,
+      "methods": 100.0,
+      "rels": 80.0,
+      "overall": 100.0
+    },
+    "regex": {
+      "classes": {
+        "tp": 5,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 10,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 22,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 41,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "ai": {
+      "classes": {
+        "tp": 5,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 10,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 22,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 41,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "cross_consistency": 100.0,
+    "elapsed_s": 9.4
+  },
+  {
+    "file": "14_ambiguous_incomplete.java",
+    "language": "java",
+    "errors": [],
+    "cir_counts": {
+      "classes": 3,
+      "fields": 10,
+      "methods": 15,
+      "rels": 4
+    },
+    "cir_completeness": {
+      "classes": 100.0,
+      "fields": 100.0,
+      "methods": 100.0,
+      "rels": 100.0,
+      "overall": 100.0
+    },
+    "regex": {
+      "classes": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 10,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 15,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 32,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "ai": {
+      "classes": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 10,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 15,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 32,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "cross_consistency": 100.0,
+    "elapsed_s": 8.8
+  },
+  {
+    "file": "15_multi_interface_web.java",
+    "language": "java",
+    "errors": [],
+    "cir_counts": {
+      "classes": 5,
+      "fields": 11,
+      "methods": 25,
+      "rels": 7
+    },
+    "cir_completeness": {
+      "classes": 100.0,
+      "fields": 100.0,
+      "methods": 100.0,
+      "rels": 100.0,
+      "overall": 100.0
+    },
+    "regex": {
+      "classes": {
+        "tp": 5,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 11,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 25,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 48,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "ai": {
+      "classes": {
+        "tp": 5,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 11,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 25,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "recall": 0.0,
+        "precision": 100.0,
+        "f1": 0.0
+      },
+      "depends_on": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 45,
+        "fp": 0,
+        "fn": 3,
+        "recall": 93.8,
+        "precision": 100.0,
+        "f1": 96.8
+      }
+    },
+    "cross_consistency": 93.8,
+    "elapsed_s": 14.3
+  },
+  {
+    "file": "06_student_baseline.py",
+    "language": "python",
+    "errors": [],
+    "cir_counts": {
+      "classes": 2,
+      "fields": 5,
+      "methods": 6,
+      "rels": 0
+    },
+    "cir_completeness": {
+      "classes": 100.0,
+      "fields": 100.0,
+      "methods": 100.0,
+      "rels": 100.0,
+      "overall": 100.0
+    },
+    "regex": {
+      "classes": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 5,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 6,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 13,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "ai": {
+      "classes": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 5,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 6,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 13,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "cross_consistency": 100.0,
+    "elapsed_s": 7.5
+  },
+  {
+    "file": "07_student_inheritance.py",
+    "language": "python",
+    "errors": [],
+    "cir_counts": {
+      "classes": 4,
+      "fields": 9,
+      "methods": 13,
+      "rels": 3
+    },
+    "cir_completeness": {
+      "classes": 100.0,
+      "fields": 100.0,
+      "methods": 100.0,
+      "rels": 100.0,
+      "overall": 100.0
+    },
+    "regex": {
+      "classes": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 9,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 13,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 29,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "ai": {
+      "classes": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 9,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 13,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 29,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "cross_consistency": 100.0,
+    "elapsed_s": 9.8
+  },
+  {
+    "file": "08_student_association.py",
+    "language": "python",
+    "errors": [],
+    "cir_counts": {
+      "classes": 2,
+      "fields": 7,
+      "methods": 6,
+      "rels": 2
+    },
+    "cir_completeness": {
+      "classes": 100.0,
+      "fields": 100.0,
+      "methods": 85.7,
+      "rels": 100.0,
+      "overall": 100.0
+    },
+    "regex": {
+      "classes": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 7,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 6,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 17,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "ai": {
+      "classes": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 7,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 6,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "recall": 0.0,
+        "precision": 100.0,
+        "f1": 0.0
+      },
+      "depends_on": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 16,
+        "fp": 0,
+        "fn": 1,
+        "recall": 94.1,
+        "precision": 100.0,
+        "f1": 97.0
+      }
+    },
+    "cross_consistency": 94.1,
+    "elapsed_s": 14.4
+  },
+  {
+    "file": "09_student_layered_system.py",
+    "language": "python",
+    "errors": [],
+    "cir_counts": {
+      "classes": 6,
+      "fields": 11,
+      "methods": 25,
+      "rels": 9
+    },
+    "cir_completeness": {
+      "classes": 100.0,
+      "fields": 61.1,
+      "methods": 100.0,
+      "rels": 100.0,
+      "overall": 100.0
+    },
+    "regex": {
+      "classes": {
+        "tp": 6,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 11,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 25,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 6,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 51,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "ai": {
+      "classes": {
+        "tp": 6,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 11,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 25,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 1,
+        "recall": 0.0,
+        "precision": 100.0,
+        "f1": 0.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 0.0,
+        "f1": 0.0
+      },
+      "associates": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 2,
+        "recall": 66.7,
+        "precision": 100.0,
+        "f1": 80.0
+      },
+      "overall": {
+        "tp": 48,
+        "fp": 1,
+        "fn": 3,
+        "recall": 94.1,
+        "precision": 98.0,
+        "f1": 96.0
+      }
+    },
+    "cross_consistency": 92.3,
+    "elapsed_s": 15.0
+  },
+  {
+    "file": "10_student_grade_report.py",
+    "language": "python",
+    "errors": [],
+    "cir_counts": {
+      "classes": 5,
+      "fields": 18,
+      "methods": 20,
+      "rels": 8
+    },
+    "cir_completeness": {
+      "classes": 100.0,
+      "fields": 100.0,
+      "methods": 100.0,
+      "rels": 100.0,
+      "overall": 100.0
+    },
+    "regex": {
+      "classes": {
+        "tp": 5,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 18,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 20,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 5,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 51,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "ai": {
+      "classes": {
+        "tp": 5,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 18,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 20,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 1,
+        "recall": 66.7,
+        "precision": 100.0,
+        "f1": 80.0
+      },
+      "depends_on": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 3,
+        "recall": 40.0,
+        "precision": 100.0,
+        "f1": 57.1
+      },
+      "overall": {
+        "tp": 47,
+        "fp": 0,
+        "fn": 4,
+        "recall": 92.2,
+        "precision": 100.0,
+        "f1": 95.9
+      }
+    },
+    "cross_consistency": 92.2,
+    "elapsed_s": 12.7
+  },
+  {
+    "file": "16_messy_ai_style.py",
+    "language": "python",
+    "errors": [],
+    "cir_counts": {
+      "classes": 3,
+      "fields": 8,
+      "methods": 10,
+      "rels": 2
+    },
+    "cir_completeness": {
+      "classes": 100.0,
+      "fields": 88.9,
+      "methods": 100.0,
+      "rels": 100.0,
+      "overall": 95.8
+    },
+    "regex": {
+      "classes": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 10,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 23,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "ai": {
+      "classes": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 10,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 23,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "cross_consistency": 100.0,
+    "elapsed_s": 8.7
+  },
+  {
+    "file": "17_complex_generics.py",
+    "language": "python",
+    "errors": [],
+    "cir_counts": {
+      "classes": 3,
+      "fields": 9,
+      "methods": 13,
+      "rels": 2
+    },
+    "cir_completeness": {
+      "classes": 100.0,
+      "fields": 90.0,
+      "methods": 100.0,
+      "rels": 66.7,
+      "overall": 96.4
+    },
+    "regex": {
+      "classes": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 9,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 13,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 27,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "ai": {
+      "classes": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 9,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 13,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 27,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "cross_consistency": 100.0,
+    "elapsed_s": 9.9
+  },
+  {
+    "file": "18_deep_inheritance.py",
+    "language": "python",
+    "errors": [],
+    "cir_counts": {
+      "classes": 5,
+      "fields": 10,
+      "methods": 21,
+      "rels": 4
+    },
+    "cir_completeness": {
+      "classes": 100.0,
+      "fields": 71.4,
+      "methods": 100.0,
+      "rels": 80.0,
+      "overall": 100.0
+    },
+    "regex": {
+      "classes": {
+        "tp": 5,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 10,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 21,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 40,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "ai": {
+      "classes": {
+        "tp": 5,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 10,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 21,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 40,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "cross_consistency": 100.0,
+    "elapsed_s": 10.3
+  },
+  {
+    "file": "19_ambiguous_incomplete.py",
+    "language": "python",
+    "errors": [],
+    "cir_counts": {
+      "classes": 3,
+      "fields": 8,
+      "methods": 14,
+      "rels": 4
+    },
+    "cir_completeness": {
+      "classes": 100.0,
+      "fields": 80.0,
+      "methods": 100.0,
+      "rels": 100.0,
+      "overall": 100.0
+    },
+    "regex": {
+      "classes": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 14,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 29,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "ai": {
+      "classes": {
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 14,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 1,
+        "recall": 66.7,
+        "precision": 100.0,
+        "f1": 80.0
+      },
+      "overall": {
+        "tp": 28,
+        "fp": 0,
+        "fn": 1,
+        "recall": 96.6,
+        "precision": 100.0,
+        "f1": 98.3
+      }
+    },
+    "cross_consistency": 96.6,
+    "elapsed_s": 9.5
+  },
+  {
+    "file": "20_stress_test.py",
+    "language": "python",
+    "errors": [],
+    "cir_counts": {
+      "classes": 6,
+      "fields": 20,
+      "methods": 23,
+      "rels": 8
+    },
+    "cir_completeness": {
+      "classes": 100.0,
+      "fields": 90.9,
+      "methods": 100.0,
+      "rels": 80.0,
+      "overall": 95.0
+    },
+    "regex": {
+      "classes": {
+        "tp": 6,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 20,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 23,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 57,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "ai": {
+      "classes": {
+        "tp": 6,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "fields": {
+        "tp": 20,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "methods": {
+        "tp": 23,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "inherits": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "implements": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "associates": {
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "depends_on": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      },
+      "overall": {
+        "tp": 57,
+        "fp": 0,
+        "fn": 0,
+        "recall": 100.0,
+        "precision": 100.0,
+        "f1": 100.0
+      }
+    },
+    "cross_consistency": 100.0,
+    "elapsed_s": 13.0
+  }
+]

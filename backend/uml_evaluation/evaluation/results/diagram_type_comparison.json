@@ -1,0 +1,244 @@
+[
+  {
+    "file": "06_student_baseline.py",
+    "language": "python",
+    "errors": [],
+    "diagrams": {
+      "class": {
+        "regex": null,
+        "ai": null,
+        "consistency": 100.0,
+        "errors": [],
+        "regex_raw": "@startuml\nskinparam classAttributeIconSize 0\nset namespaceSeparator .\nclass Student {\n  + student_id : str\n  + name : str\n  + email : str\n  + get_student_id() : str\n  + get_name() : str\n  + update_email(email: str) : None\n}\nclass Department {\n  + dept_id : str\n  + dept_name : str\n  + get_dept_id() : str\n  + get_dept_name() : str\n  + update_name(name: str) : None\n}\n@enduml",
+        "ai_raw": "@startuml\nskinparam classAttributeIconSize 0\nset namespaceSeparator .\nclass Department {\n  +dept_id : str\n  +dept_name : str\n  +get_dept_id() : str\n  +get_dept_name() : str\n  +update_name(name: str) : None\n}\nclass Student {\n  +student_id : str\n  +name : str\n  +email : str\n  +get_student_id() : str\n  +get_name() : str\n  +update_email(email: str) : None\n}\n@enduml",
+        "regex_vs_ai": {
+          "classes": {
+            "tp": 2,
+            "fp": 0,
+            "fn": 0,
+            "recall": 100.0,
+            "precision": 100.0,
+            "f1": 100.0
+          },
+          "fields": {
+            "tp": 5,
+            "fp": 0,
+            "fn": 0,
+            "recall": 100.0,
+            "precision": 100.0,
+            "f1": 100.0
+          },
+          "methods": {
+            "tp": 6,
+            "fp": 0,
+            "fn": 0,
+            "recall": 100.0,
+            "precision": 100.0,
+            "f1": 100.0
+          },
+          "inherits": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "recall": 100.0,
+            "precision": 100.0,
+            "f1": 100.0
+          },
+          "implements": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "recall": 100.0,
+            "precision": 100.0,
+            "f1": 100.0
+          },
+          "associates": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "recall": 100.0,
+            "precision": 100.0,
+            "f1": 100.0
+          },
+          "depends_on": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "recall": 100.0,
+            "precision": 100.0,
+            "f1": 100.0
+          },
+          "overall": {
+            "tp": 13,
+            "fp": 0,
+            "fn": 0,
+            "recall": 100.0,
+            "precision": 100.0,
+            "f1": 100.0
+          }
+        }
+      },
+      "package": {
+        "regex": null,
+        "ai": null,
+        "consistency": 33.3,
+        "errors": [],
+        "regex_raw": "@startuml\n\n' Package diagram \u2014 shows physical namespace organisation\n' Classifier names only inside packages (no kind keywords, no members)\n' Arrows represent inter-package dependencies aggregated from type relationships\n\nskinparam packageStyle         folder\nskinparam classAttributeIconSize 0\nskinparam shadowing            false\n\nskinparam package {\n  FontStyle        Bold\n  FontSize         12\n}\n\npackage \"06_student_baseline\" {\n  [Department]\n  [Student]\n}\n\n\n@enduml",
+        "ai_raw": "@startuml\n\n  ' Package diagram \u2014 shows physical code organisation\n  ' Folder-tab icon per package; C/I/E/A circle icons per class member\n\n  skinparam packageStyle         folder\n  skinparam classAttributeIconSize 0\n  skinparam shadowing            false\n\n  skinparam package {\n    FontStyle        Bold\n    FontSize         12\n  }\n\npackage \"06_student_baseline\" {\n  class Department\n  class Student\n}\n\n@enduml",
+        "regex_vs_ai": {
+          "packages": {
+            "tp": 1,
+            "fp": 0,
+            "fn": 0,
+            "recall": 100.0,
+            "precision": 100.0,
+            "f1": 100.0
+          },
+          "members": {
+            "tp": 0,
+            "fp": 2,
+            "fn": 0,
+            "recall": 100.0,
+            "precision": 0.0,
+            "f1": 0.0
+          },
+          "dependencies": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "recall": 100.0,
+            "precision": 100.0,
+            "f1": 100.0
+          },
+          "overall": {
+            "tp": 1,
+            "fp": 2,
+            "fn": 0,
+            "recall": 100.0,
+            "precision": 33.3,
+            "f1": 50.0
+          }
+        }
+      },
+      "sequence": {
+        "regex": null,
+        "ai": null,
+        "consistency": 0.0,
+        "errors": [],
+        "regex_raw": "@startuml\n\nskinparam sequenceArrowThickness 2\nskinparam roundcorner 5\nskinparam maxmessagesize 250\nskinparam responseMessageBelowArrow true\nskinparam shadowing false\n\nautoactivate on\n\nactor \"Client\" as Client\nparticipant \"Department\" as Department\nparticipant \"Student\" as Student\n\nnote over Department\n  Messages inferred from class associations\n  (no CALLS data in CIR \u2014 diagram is approximate)\nend note\n\nnote over Department\n  No direct method call chains detected.\nend note\n@enduml",
+        "ai_raw": "@startuml\n\n  skinparam sequenceArrowThickness 2\n  skinparam roundcorner 5\n  skinparam maxmessagesize 250\n  skinparam responseMessageBelowArrow true\n  skinparam shadowing false\n\n...\n@enduml",
+        "regex_vs_ai": {
+          "participants": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 3,
+            "recall": 0.0,
+            "precision": 100.0,
+            "f1": 0.0
+          },
+          "messages": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "recall": 100.0,
+            "precision": 100.0,
+            "f1": 100.0
+          },
+          "overall": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 3,
+            "recall": 0.0,
+            "precision": 100.0,
+            "f1": 0.0
+          }
+        }
+      },
+      "component": {
+        "regex": null,
+        "ai": null,
+        "consistency": 100.0,
+        "errors": [],
+        "regex_raw": "@startuml\n\n' Component diagram \u2014 shows architectural components and their interfaces\n' Notched-rectangle = component   Circle (lollipop) = provided interface\n' Only ASSOCIATES and DEPENDS_ON edges are shown (no classifier relationships)\n\nskinparam componentStyle      uml2\nskinparam defaultTextAlignment center\nskinparam shadowing           false\nleft to right direction\n\nskinparam package {\n  FontStyle        Bold\n}\n\npackage \"06_student_baseline\" {\n  [Department] as type_06_student_baseline_Department\n  [Student] as type_06_student_baseline_Student\n}\n\n\n@enduml",
+        "ai_raw": "@startuml\n\n  ' Component diagram \u2014 shows architectural components and their interfaces\n  ' Notched-rectangle icon = component   Circle (lollipop) = provided interface\n\n  skinparam componentStyle      uml2\n  skinparam defaultTextAlignment center\n  skinparam shadowing           false\n  left to right direction\n\n  skinparam package {\n    FontStyle        Bold\n  }\n\npackage \"06_student_baseline\" {\n  [Department] as t_Department\n  [Student] as t_Student\n}\n@enduml",
+        "regex_vs_ai": {
+          "components": {
+            "tp": 2,
+            "fp": 0,
+            "fn": 0,
+            "recall": 100.0,
+            "precision": 100.0,
+            "f1": 100.0
+          },
+          "interfaces": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "recall": 100.0,
+            "precision": 100.0,
+            "f1": 100.0
+          },
+          "connections": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "recall": 100.0,
+            "precision": 100.0,
+            "f1": 100.0
+          },
+          "overall": {
+            "tp": 2,
+            "fp": 0,
+            "fn": 0,
+            "recall": 100.0,
+            "precision": 100.0,
+            "f1": 100.0
+          }
+        }
+      },
+      "activity": {
+        "regex": null,
+        "ai": null,
+        "consistency": 40.0,
+        "errors": [],
+        "regex_raw": "@startuml\n\nskinparam shadowing               false\n\nstart\n\n:Approximate flow - no call chain data available;\n\n|Student|\n:Student.update_email(email: str);\n|Department|\n:Department.update_name(name: str);\n\nstop\n\n@enduml",
+        "ai_raw": "@startuml\n  skinparam shadowing               false\n  skinparam activityBorderColor     #000000\n  skinparam activityBackgroundColor #ffffff\n  skinparam activityFontColor       #000000\n  skinparam activityFontSize        13\n  skinparam arrowColor              #000000\n  skinparam ActivityDiamondBorderColor #000000\n  skinparam ActivityDiamondBackgroundColor #ffffff\n  skinparam ActivityDiamondFontColor #000000\n\nstart\n\n:Student.update_email(email: str);\n:Department.update_name(name: str);\n\nstop\n@enduml",
+        "regex_vs_ai": {
+          "actions": {
+            "tp": 2,
+            "fp": 0,
+            "fn": 1,
+            "recall": 66.7,
+            "precision": 100.0,
+            "f1": 80.0
+          },
+          "decisions": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "recall": 100.0,
+            "precision": 100.0,
+            "f1": 100.0
+          },
+          "swimlanes": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 2,
+            "recall": 0.0,
+            "precision": 100.0,
+            "f1": 0.0
+          },
+          "overall": {
+            "tp": 2,
+            "fp": 0,
+            "fn": 3,
+            "recall": 40.0,
+            "precision": 100.0,
+            "f1": 57.1
+          }
+        }
+      }
+    },
+    "elapsed_s": 34.5
+  }
+]

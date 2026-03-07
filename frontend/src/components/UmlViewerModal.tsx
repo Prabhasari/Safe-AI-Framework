@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { X, Box, Boxes, GitBranch, Eye, Download, Activity } from "lucide-react";
+import { X, Box, Boxes, GitBranch, Eye, Download, Activity, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 export type DiagramType = "class" | "package" | "sequence" | "component" | "activity";
 
 type UmlValidation = {
@@ -43,7 +43,6 @@ function errMsg(e: unknown): string {
   }
 }
 
-// Download the raw SVG string as a .svg file.
 function downloadSvg(svgString: string, filename: string) {
   const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
   const url  = URL.createObjectURL(blob);
@@ -54,9 +53,7 @@ function downloadSvg(svgString: string, filename: string) {
   URL.revokeObjectURL(url);
 }
 
-// Convert the SVG string to a PNG and trigger download
 function downloadPng(svgString: string, filename: string, containerEl: HTMLElement | null) {
-  // --- 1. Parse the SVG to discover its natural dimensions ---
   const parser  = new DOMParser();
   const svgDoc  = parser.parseFromString(svgString, "image/svg+xml");
   const svgEl   = svgDoc.documentElement as unknown as SVGSVGElement;
@@ -71,7 +68,6 @@ function downloadPng(svgString: string, filename: string, containerEl: HTMLEleme
     height = parseFloat(hAttr);
   }
 
-  // Fall back to viewBox
   if ((!width || !height) && svgEl.getAttribute("viewBox")) {
     const vb = svgEl.getAttribute("viewBox")!.split(/[\s,]+/);
     width  = parseFloat(vb[2]);
@@ -86,7 +82,6 @@ function downloadPng(svgString: string, filename: string, containerEl: HTMLEleme
 
   if (!width || !height) { width = 800; height = 600; }
 
-  // --- 2. Render to canvas at 2× for retina sharpness ---
   const scale   = 2;
   const canvas  = document.createElement("canvas");
   canvas.width  = width  * scale;
@@ -94,7 +89,6 @@ function downloadPng(svgString: string, filename: string, containerEl: HTMLEleme
   const ctx     = canvas.getContext("2d")!;
   ctx.scale(scale, scale);
 
-  // --- 3. Draw the SVG via an Image ---
   const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
   const url     = URL.createObjectURL(svgBlob);
   const img     = new Image();
@@ -122,7 +116,174 @@ function downloadPng(svgString: string, filename: string, containerEl: HTMLEleme
   img.src = url;
 }
 
-// Main UML Viewer Modal component
+// ─── Zoomable SVG wrapper ─────────────────────────────────────────────────────
+function ZoomableDiagram({
+  svg,
+  title,
+  containerRef,
+}: {
+  svg: string;
+  title?: string;
+  containerRef?: React.RefObject<HTMLDivElement | null>;
+}) {
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan]   = useState({ x: 0, y: 0 });
+  const dragging        = useRef(false);
+  const lastPos         = useRef({ x: 0, y: 0 });
+  const wrapperRef      = useRef<HTMLDivElement>(null);
+
+  const MIN_ZOOM = 0.2;
+  const MAX_ZOOM = 5;
+  const STEP     = 0.2;
+
+  const zoomIn  = () => setZoom((z) => Math.min(+(z + STEP).toFixed(2), MAX_ZOOM));
+  const zoomOut = () => setZoom((z) => Math.max(+(z - STEP).toFixed(2), MIN_ZOOM));
+  const reset   = () => { setZoom(1); setPan({ x: 0, y: 0 }); };
+
+  // Wheel zoom
+  const onWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? STEP : -STEP;
+    setZoom((z) => Math.min(Math.max(+(z + delta).toFixed(2), MIN_ZOOM), MAX_ZOOM));
+  };
+
+  // Drag to pan
+  const onMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    dragging.current = true;
+    lastPos.current  = { x: e.clientX, y: e.clientY };
+    e.currentTarget.setAttribute("data-dragging", "true");
+  };
+
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!dragging.current) return;
+    const dx = e.clientX - lastPos.current.x;
+    const dy = e.clientY - lastPos.current.y;
+    lastPos.current = { x: e.clientX, y: e.clientY };
+    setPan((p) => ({ x: p.x + dx, y: p.y + dy }));
+  };
+
+  const stopDrag = (e: React.MouseEvent) => {
+    dragging.current = false;
+    e.currentTarget.removeAttribute("data-dragging");
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", gap: 8 }}>
+
+      {/* ── Title + Zoom controls on the same row ── */}
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        minHeight: 36,
+      }}>
+        {/* Left: title */}
+        {title && (
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>
+            {title}
+          </div>
+        )}
+
+        {/* Right: zoom controls */}
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          padding: "6px 10px",
+          background: "#f8fafc",
+          borderRadius: 8,
+          border: "1px solid #e2e8f0",
+          marginLeft: "auto",
+        }}>
+          <button
+            onClick={zoomOut}
+            disabled={zoom <= MIN_ZOOM}
+            title="Zoom out"
+            style={zoomBtnStyle(zoom <= MIN_ZOOM)}
+          >
+            <ZoomOut size={15} />
+          </button>
+
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#475569", minWidth: 44, textAlign: "center" }}>
+            {Math.round(zoom * 100)}%
+          </span>
+
+          <button
+            onClick={zoomIn}
+            disabled={zoom >= MAX_ZOOM}
+            title="Zoom in"
+            style={zoomBtnStyle(zoom >= MAX_ZOOM)}
+          >
+            <ZoomIn size={15} />
+          </button>
+
+          <div style={{ width: 1, height: 18, background: "#e2e8f0", margin: "0 2px" }} />
+
+          <button onClick={reset} title="Reset zoom & pan" style={zoomBtnStyle(false)}>
+            <RotateCcw size={14} />
+          </button>
+        </div>
+      </div>
+
+      {/* Pan / zoom canvas */}
+      <div
+        ref={wrapperRef}
+        onWheel={onWheel}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={stopDrag}
+        onMouseLeave={stopDrag}
+        style={{
+          flex: 1,
+          overflow: "hidden",
+          borderRadius: 8,
+          background: "#ffffff",
+          border: "1px solid #f1f5f9",
+          // eslint-disable-next-line react-hooks/refs
+          cursor: dragging.current ? "grabbing" : "grab",
+          userSelect: "none",
+        }}
+      >
+        <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
+          className="uml-svg"
+          style={{
+            transformOrigin: "top left",
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+            // eslint-disable-next-line react-hooks/refs
+            transition: dragging.current ? "none" : "transform 0.05s ease",
+            display: "inline-block",
+            minWidth: "100%",
+          }}
+          dangerouslySetInnerHTML={{ __html: svg }}
+        />
+      </div>
+
+      <div style={{ fontSize: 11, color: "#94a3b8", textAlign: "center" }}>
+        Scroll to zoom · drag to pan · click Reset to fit
+      </div>
+    </div>
+  );
+}
+
+function zoomBtnStyle(disabled: boolean): React.CSSProperties {
+  return {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: 28,
+    height: 28,
+    border: "1px solid #e2e8f0",
+    borderRadius: 6,
+    background: disabled ? "#f1f5f9" : "#ffffff",
+    color: disabled ? "#cbd5e1" : "#475569",
+    cursor: disabled ? "not-allowed" : "pointer",
+    padding: 0,
+  };
+}
+
+// ─── Main UML Viewer Modal ────────────────────────────────────────────────────
 export default function UmlViewerModal({
   open,
   uml,
@@ -140,8 +301,6 @@ export default function UmlViewerModal({
   tab: DiagramType;
   setTab: React.Dispatch<React.SetStateAction<DiagramType>>;
   onClose: () => void;
-
-  /** AI generation inputs */
   code: string | null;
   cir: unknown | null;
   umlAiApi: string;
@@ -179,7 +338,7 @@ export default function UmlViewerModal({
         package: aiStore.package?.svg ?? null,
         sequence: aiStore.sequence?.svg ?? null,
         component: aiStore.component?.svg ?? null,
-        activity: aiStore.activity?.svg ?? null,  // ← NEW
+        activity: aiStore.activity?.svg  ?? null,
       }) as Record<DiagramType, string | null>,
     [aiStore]
   );
@@ -240,7 +399,6 @@ export default function UmlViewerModal({
       if (data.error) throw new Error(data.error);
 
       const svg = data.svg ?? null;
-
       setAiStore((prev) => ({
         ...prev,
         [data.diagram_type]: { svg, plantuml: data.plantuml },
@@ -261,7 +419,6 @@ export default function UmlViewerModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, source, tab]);
 
-  // ── Download handler ────────────────────────────────────────────────────────
   const handleDownload = (format: "svg" | "png") => {
     if (!activeSvg) return;
     const sourcePart = effectiveSource === "ai" ? "ai" : "rule";
@@ -300,7 +457,7 @@ export default function UmlViewerModal({
           overflow: "hidden",
         }}
       >
-        {/* Header */}
+        {/* ── Header ── */}
         <div
           style={{
             padding: "16px 20px 12px 20px",
@@ -331,7 +488,7 @@ export default function UmlViewerModal({
                 UML Diagram Viewer
               </div>
               <div style={{ fontSize: 12, color: "#64748b" }}>
-                AI mode auto-generates per tab
+                Scroll to zoom · drag to pan
               </div>
             </div>
           </div>
@@ -382,7 +539,7 @@ export default function UmlViewerModal({
                   fontSize: 12,
                   opacity: !canGenerateAi ? 0.5 : 1,
                 }}
-                title={!canGenerateAi ? "Generate code first" : "Switch to AI (auto-generates this tab)"}
+                title={!canGenerateAi ? "Generate code first" : "Switch to AI"}
               >
                 AI-based
               </button>
@@ -414,7 +571,7 @@ export default function UmlViewerModal({
           </div>
         </div>
 
-        {/* Status row */}
+        {/* ── Status row ── */}
         {(aiError || (aiLoading && effectiveSource === "ai" && !aiSvgs[tab])) && (
           <div
             style={{
@@ -429,7 +586,7 @@ export default function UmlViewerModal({
           </div>
         )}
 
-        {/* Tabs */}
+        {/* ── Tabs ── */}
         <div
           style={{
             padding: "10px 16px",
@@ -476,8 +633,8 @@ export default function UmlViewerModal({
           />
         </div>
 
-        {/* Content */}
-        <div style={{ padding: 16, flex: 1, overflow: "hidden", background: "#f8fafc" }}>
+        {/* ── Content ── */}
+        <div style={{ padding: 16, flex: 1, overflow: "hidden", background: "#f8fafc", display: "flex", flexDirection: "column" }}>
           {activeSvg ? (
             <DiagramCard
               title={`${effectiveSource === "ai" ? "AI" : "Rule"} • ${tab.toUpperCase()} Diagram`}
@@ -510,7 +667,6 @@ function DownloadMenu({ onDownload }: { onDownload: (fmt: "svg" | "png") => void
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  // Close when clicking outside
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
@@ -609,17 +765,9 @@ const menuItemStyle: React.CSSProperties = {
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function TabButton({
-  label,
-  icon,
-  active,
-  disabled,
-  onClick,
+  label, icon, active, disabled, onClick,
 }: {
-  label: string;
-  icon: React.ReactNode;
-  active: boolean;
-  disabled: boolean;
-  onClick: () => void;
+  label: string; icon: React.ReactNode; active: boolean; disabled: boolean; onClick: () => void;
 }) {
   return (
     <button
@@ -648,18 +796,14 @@ function TabButton({
 }
 
 function DiagramCard({
-  title,
-  svg,
-  containerRef,
+  title, svg, containerRef,
 }: {
-  title: string;
-  svg: string;
-  containerRef?: React.RefObject<HTMLDivElement | null>;
+  title: string; svg: string; containerRef?: React.RefObject<HTMLDivElement | null>;
 }) {
   return (
     <div
       style={{
-        height: "100%",
+        flex: 1,
         background: "#ffffff",
         borderRadius: 10,
         border: "1px solid #e2e8f0",
@@ -669,22 +813,8 @@ function DiagramCard({
         overflow: "hidden",
       }}
     >
-      <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", marginBottom: 8 }}>
-        {title}
-      </div>
-
-      <div
-        ref={containerRef}
-        className="uml-svg"
-        style={{
-          flex: 1,
-          overflow: "auto",
-          borderRadius: 8,
-          background: "#ffffff",
-          border: "1px solid #f1f5f9",
-        }}
-        dangerouslySetInnerHTML={{ __html: svg }}
-      />
+      {/* Title and zoom controls are rendered together inside ZoomableDiagram */}
+      <ZoomableDiagram svg={svg} title={title} containerRef={containerRef} />
     </div>
   );
 }

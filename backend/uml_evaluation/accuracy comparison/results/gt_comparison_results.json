@@ -1,0 +1,118 @@
+[
+  {
+    "file": "13_library_borrow_system.py",
+    "language": "python",
+    "errors": {},
+    "diagrams": {
+      "class": {
+        "regex": {
+          "overall": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "precision": 100.0,
+            "recall": 100.0,
+            "f1": 100.0
+          }
+        },
+        "ai": {
+          "overall": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "precision": 100.0,
+            "recall": 100.0,
+            "f1": 100.0
+          }
+        },
+        "errors": []
+      },
+      "package": {
+        "regex": {
+          "overall": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "precision": 100.0,
+            "recall": 100.0,
+            "f1": 100.0
+          }
+        },
+        "ai": {
+          "overall": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "precision": 100.0,
+            "recall": 100.0,
+            "f1": 100.0
+          }
+        },
+        "errors": []
+      },
+      "sequence": {
+        "regex": {
+          "overall": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "precision": 100.0,
+            "recall": 100.0,
+            "f1": 100.0
+          }
+        },
+        "ai": {
+          "overall": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "precision": 100.0,
+            "recall": 100.0,
+            "f1": 100.0
+          }
+        },
+        "errors": []
+      },
+      "component": {
+        "regex": {
+          "overall": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "precision": 100.0,
+            "recall": 100.0,
+            "f1": 100.0
+          }
+        },
+        "ai": {
+          "overall": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "precision": 100.0,
+            "recall": 100.0,
+            "f1": 100.0
+          }
+        },
+        "errors": []
+      },
+      "activity": {
+        "regex": {
+          "overall": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "precision": 100.0,
+            "recall": 100.0,
+            "f1": 100.0
+          }
+        },
+        "ai": {},
+        "errors": [
+          "ai: SVG render failed: HTTPError: 500 Server Error: Internal Server Error for url: http://127.0.0.1:7090/render/svg"
+        ]
+      }
+    },
+    "elapsed_s": 55.2
+  }
+]

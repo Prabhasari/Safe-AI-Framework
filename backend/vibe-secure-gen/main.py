@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from pipeline import run_pipeline  # <-- changed (no app.)
+from history_router import router as history_router 
 
 app = FastAPI(title="Secure-by-Design Code Generator")
 
@@ -17,6 +18,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(history_router, prefix="/api")
 
 @app.options("/api/generate")
 def options_generate():

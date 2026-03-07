@@ -113,7 +113,7 @@ Remember: Return ONLY the complete fixed code in a fenced block. No explanations
             
             # Consider it successful if we reduced issues
             if fixes_applied > 0:
-                print(f"     ✅ LLM fixed {fixes_applied} of {len(findings)} issues")
+                print(f"     ✔ LLM fixed {fixes_applied} of {len(findings)} issues")
                 return {
                     "fixed": True,
                     "code": fixed_code,

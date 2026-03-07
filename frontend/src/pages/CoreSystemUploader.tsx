@@ -644,6 +644,12 @@ async function onStopPlugin(name?: string) {
         >
           Stop All Containers
         </button> */}
+        <button
+          onClick={() => navigate("/PluginRegistryPage")}
+          style={navBtn}
+        >
+          Plugin Registry Page
+        </button>
 
         <button
           onClick={() => navigate("/secure-generator")}
