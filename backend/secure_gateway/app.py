@@ -1016,7 +1016,7 @@ async def registry_plugins(db: Session = Depends(get_db)):
             "role": p.role or "Plugin",
             "intent": p.declared_intent or "—",
             "trustScore": round(p.trust_score, 1),
-            "status": _STATUS_MAP.get(p.status, "blocked"),
+            "status": p.status,
             "anomalyFlag": p.anomaly_flag,
             "lastActive": _human_time_ago(p.last_request_at),
             "reqRate": f"{p.request_frequency} req/min",

@@ -16,17 +16,7 @@ type Plugin = {
   reqRate: string;
 };
 
-/** Map backend status to the union the UI expects. */
-function normaliseStatus(
-  status: string,
-  anomalyFlag?: boolean
-): Plugin["status"] {
-  // Map backend values to UI-friendly statuses
-  if (status === "trusted") return "active";
-  if (status === "restricted") return "restricted";
-  if (status === "blocked") return anomalyFlag ? "revoked" : "blocked";
-  return "blocked";
-}
+
 
 export default function PluginRegistryPage() {
   const navigate = useNavigate();
@@ -55,7 +45,7 @@ export default function PluginRegistryPage() {
             role: d.role,
             intent: d.intent,
             trustScore: d.trustScore,
-            status: normaliseStatus(d.status, d.anomalyFlag),
+            status: d.status,
             anomalyFlag: d.anomalyFlag,
             lastActive: d.lastActive,
             reqRate: d.reqRate,
