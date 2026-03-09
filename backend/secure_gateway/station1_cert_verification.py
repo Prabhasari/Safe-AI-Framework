@@ -144,6 +144,36 @@ class Station1CertVerification:
         # For now, return structure for sync version
         return False, {}, "Use async version"
     
+    def _mark_plugin_revoked(
+        self,
+        db: Session,
+        plugin_id: str,
+        intent: str,
+        reason: str,
+    ) -> None:
+        """
+        Create or update the plugin row with status='revoked'.
+        Called when certificate verification or CA revocation check fails.
+        """
+        from config import INITIAL_TRUST_SCORE
+        plugin = db.get(Plugin, plugin_id)
+        if not plugin:
+            plugin = Plugin(
+                plugin_id=plugin_id,
+                name=plugin_id,
+                role="plugin",
+                declared_intent=intent,
+                trust_score=0.0,
+                status="revoked",
+                service_base_url="",
+            )
+            db.add(plugin)
+        else:
+            plugin.status = "revoked"
+            plugin.trust_score = 0.0
+        db.commit()
+        print(f"[STATION 1] Plugin '{plugin_id}' marked as REVOKED (trust_score=0): {reason}")
+
     async def async_process_certificate_and_issue_jwt(
         self,
         plugin_id: str,
@@ -158,8 +188,9 @@ class Station1CertVerification:
         Flow:
         1. Verify certificate LOCALLY (signature, expiry, CN match)
         2. Check revocation status with CA service
-        3. Calculate trust score
-        4. Issue intent-bound JWT
+        3. Only after ALL checks pass → create/update plugin as "active"
+        4. Calculate trust score
+        5. Issue intent-bound JWT
         """
         clog.log_station1_processing(plugin_id, intent, scope)
         
@@ -171,6 +202,7 @@ class Station1CertVerification:
         
         if not is_valid:
             clog.log_station1_cert_failed(error)
+            self._mark_plugin_revoked(db, plugin_id, intent, error)
             return False, {}, f"Certificate verification failed: {error}"
         
         # Step 2: Check revocation status with CA service
@@ -180,15 +212,15 @@ class Station1CertVerification:
         
         if is_revoked:
             clog.log_station1_revoked(revoke_reason)
+            self._mark_plugin_revoked(db, plugin_id, intent, f"CA revoked: {revoke_reason}")
             return False, {}, f"Certificate has been revoked: {revoke_reason}"
         
         clog.log_station1_not_revoked()
         
-        # Step 3: Get or create plugin in database
+        # Step 3: ALL checks passed — now create or update plugin as "active"
+        from config import INITIAL_TRUST_SCORE
         plugin = db.get(Plugin, plugin_id)
         if not plugin:
-            # Create new plugin with initial trust score
-            from config import INITIAL_TRUST_SCORE
             plugin = Plugin(
                 plugin_id=plugin_id,
                 name=plugin_id,
@@ -196,16 +228,19 @@ class Station1CertVerification:
                 declared_intent=intent,
                 trust_score=INITIAL_TRUST_SCORE,
                 status="active",
-                service_base_url=""
+                service_base_url="",
             )
             db.add(plugin)
             db.commit()
             db.refresh(plugin)
-            print(f"[STATION 1] New plugin registered: {plugin_id}")
+            print(f"[STATION 1] New plugin registered as ACTIVE: {plugin_id}")
         else:
-            print(f"[STATION 1] Existing plugin: {plugin_id}")
+            plugin.status = "active"
+            plugin.trust_score = INITIAL_TRUST_SCORE  # reset to 100 before formula runs
+            db.commit()
+            print(f"[STATION 1] Existing plugin verified, status set to ACTIVE: {plugin_id}")
         
-        # Step 4: Calculate trust score based on history
+        # Step 4: Calculate trust score based on history (H=1.0 now that score is reset)
         trust_score = calculate_trust_score(db, plugin_id, plugin.trust_score)
         
         # Step 5: Update plugin trust score

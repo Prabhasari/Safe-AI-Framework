@@ -309,26 +309,38 @@ async def auto_enroll_plugin(
     This is for demonstration and testing purposes.
     """
     try:
-        # Step 1: Request certificate from CA Service
+        # Step 1: Load stored certificate from Core System
+        # Certificates are issued ONLY at plugin-creation time.
         async with httpx.AsyncClient(timeout=10.0) as client:
-            ca_response = await client.post(
-                f"{CA_SERVICE_URL}/issue-cert",
-                json={
-                    "plugin_id": plugin_id,
-                    "ttl_hours": 24
-                }
+            cert_resp = await client.get(
+                f"{CORE_SYSTEM_URL}/core/plugins/{plugin_id}/cert"
             )
             
-            if ca_response.status_code != 200:
+            if cert_resp.status_code != 200:
+                _mark_plugin_revoked_in_db(db, plugin_id, "No stored certificate")
                 raise HTTPException(
-                    status_code=500,
-                    detail=f"CA Service error: {ca_response.text}"
+                    status_code=401,
+                    detail=(
+                        f"Plugin '{plugin_id}' has no stored certificate. "
+                        "Certificates are only issued at plugin-creation time. "
+                        "Please re-create the plugin to obtain a certificate."
+                    )
                 )
             
-            ca_data = ca_response.json()
-            certificate_pem = ca_data.get("certificate_pem")
+            cert_data = cert_resp.json()
+            certificate_pem = cert_data.get("cert_pem")
+            meta = cert_data.get("meta") or {}
+
+            # Identity check
+            meta_plugin_id = meta.get("plugin_id")
+            if meta_plugin_id and meta_plugin_id != plugin_id:
+                _mark_plugin_revoked_in_db(db, plugin_id, f"Certificate identity mismatch: {meta_plugin_id}")
+                raise HTTPException(
+                    status_code=401,
+                    detail=f"Certificate identity mismatch: expected '{plugin_id}', got '{meta_plugin_id}'"
+                )
             
-            print(f"[AUTO-ENROLL] Step 1 Complete: Certificate issued for {plugin_id}")
+            print(f"[AUTO-ENROLL] Step 1 Complete: Stored certificate loaded for {plugin_id}")
         
         # Step 2: Go to Station 1 with certificate
         success, result, error = await station1.async_process_certificate_and_issue_jwt(
@@ -373,7 +385,7 @@ async def auto_enroll_plugin(
             "jwt_token": jwt_token,
             "trust_score": trust_score,
             "flow_completed": [
-                "✓ Step 1: Certificate obtained from CA Service",
+                "✓ Step 1: Stored certificate loaded from Core System",
                 "✓ Step 2: JWT issued by Station 1 (certificate verified)",
                 "✓ Step 3: JWT validated by Station 2 (access granted)"
             ],
@@ -650,8 +662,8 @@ def _ensure_plugin_row(db: Session, slug: str):
             name=slug,
             role="runtime_plugin",
             declared_intent="run",
-            trust_score=INITIAL_TRUST_SCORE,
-            status="active",
+            trust_score=0.0,               # UNVERIFIED — zero until cert passes
+            status="revoked",              # UNVERIFIED — stays revoked until cert passes
             service_base_url=""
         )
         db.add(plugin)
@@ -664,6 +676,30 @@ def _ensure_plugin_row(db: Session, slug: str):
 _plugin_jwt_cache: dict = {}
 
 
+def _mark_plugin_revoked_in_db(db: Session, slug: str, reason: str = ""):
+    """
+    Ensure the plugin row exists in the DB with status='revoked'.
+    Called when certificate loading or verification fails BEFORE Station 1.
+    """
+    plugin = db.get(Plugin, slug)
+    if not plugin:
+        plugin = Plugin(
+            plugin_id=slug,
+            name=slug,
+            role="runtime_plugin",
+            declared_intent="run",
+            trust_score=0.0,
+            status="revoked",
+            service_base_url="",
+        )
+        db.add(plugin)
+    else:
+        plugin.status = "revoked"
+        plugin.trust_score = 0.0
+    db.commit()
+    print(f"[GATEWAY] Plugin '{slug}' marked as REVOKED (trust_score=0) in DB: {reason}")
+
+
 async def _ensure_plugin_authenticated(slug: str, db: Session) -> tuple:
     """
     Ensure plugin goes through the two-station authentication flow.
@@ -671,7 +707,9 @@ async def _ensure_plugin_authenticated(slug: str, db: Session) -> tuple:
     
     Flow:
     1. Check if plugin already has a valid JWT in cache
-    2. If not, get certificate from CA Service
+    2. Load the STORED persistent certificate from Core System
+       (issued once at plugin-creation time).  If no stored cert
+       exists the plugin is REJECTED — no fallback issuance.
     3. Go to Station 1 to get JWT
     4. Validate JWT at Station 2
     5. Cache the JWT for future requests
@@ -697,29 +735,52 @@ async def _ensure_plugin_authenticated(slug: str, db: Session) -> tuple:
     
     try:
         # ================================================================
-        # STEP 1: Get certificate from CA Service
+        # STEP 1: Load stored persistent certificate from Core System
+        #         Certificates are issued ONLY at plugin-creation time.
+        #         If no stored certificate exists the plugin is denied.
         # ================================================================
-        clog.log_flow_step(1, f"Requesting certificate from CA Service for plugin '{slug}'...")
-        
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            ca_response = await client.post(
-                f"{CA_SERVICE_URL}/issue-cert",
-                json={
-                    "plugin_id": slug,
-                    "ttl_hours": 24
-                }
-            )
-            
-            if ca_response.status_code != 200:
-                error_msg = f"CA Service error: {ca_response.text}"
+        certificate_pem = None
+        serial_number = None
+
+        clog.log_flow_step(1, f"Loading stored certificate for plugin '{slug}' from Core System...")
+
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                cert_resp = await client.get(
+                    f"{CORE_SYSTEM_URL}/core/plugins/{slug}/cert"
+                )
+
+            if cert_resp.status_code == 200:
+                cert_data = cert_resp.json()
+                certificate_pem = cert_data.get("cert_pem")
+                meta = cert_data.get("meta") or {}
+                serial_number = meta.get("serial_number")
+
+                # Identity check: meta.plugin_id must match the slug being run
+                meta_plugin_id = meta.get("plugin_id")
+                if meta_plugin_id and meta_plugin_id != slug:
+                    error_msg = (f"Certificate identity mismatch: meta.plugin_id="
+                                 f"'{meta_plugin_id}' but slug='{slug}'")
+                    clog.log_flow_step_failed(1, error_msg)
+                    # Mark plugin as revoked — cert identity mismatch
+                    _mark_plugin_revoked_in_db(db, slug, error_msg)
+                    return False, None, error_msg
+
+                clog.log_flow_step_success(1, "Stored certificate loaded", {"Serial": serial_number})
+            else:
+                error_msg = (f"Plugin '{slug}' has no stored certificate. "
+                             "Certificates are only issued at plugin-creation time. "
+                             "Please re-create the plugin to obtain a certificate.")
                 clog.log_flow_step_failed(1, error_msg)
+                # Mark plugin as revoked — no stored certificate
+                _mark_plugin_revoked_in_db(db, slug, error_msg)
                 return False, None, error_msg
-            
-            ca_data = ca_response.json()
-            certificate_pem = ca_data.get("certificate_pem")
-            serial_number = ca_data.get("serial_number")
-            
-            clog.log_flow_step_success(1, "Certificate issued", {"Serial": serial_number})
+        except Exception as load_err:
+            error_msg = f"Could not load stored certificate for plugin '{slug}': {load_err}"
+            clog.log_flow_step_failed(1, error_msg)
+            # Mark plugin as revoked — cert loading error
+            _mark_plugin_revoked_in_db(db, slug, error_msg)
+            return False, None, error_msg
         
         # ================================================================
         # STEP 2: Go to Station 1 with certificate to get JWT

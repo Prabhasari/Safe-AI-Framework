@@ -1,11 +1,81 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+import json
 import requests
 
 from plugin_manager import start_plugin_container, stop_plugin_container, get_plugin_host_port, delete_plugin, list_running_plugins, PLUGINS_ROOT
 from interface_enforcer import enforce_interface
 
 router = APIRouter()
+
+# ---------------------------------------------------------------------------
+# Plugin certificate retrieval
+# ---------------------------------------------------------------------------
+@router.get("/{slug}/cert")
+def get_plugin_cert(slug: str):
+    """
+    Return the stored persistent certificate for a plugin.
+    Used by the Secure Gateway to load the cert at run time
+    instead of requesting a fresh one from the CA.
+
+    ALL three files (cert.pem, key.pem, meta.json) must be present.
+    If any file is missing the plugin is considered unauthorized.
+    """
+    plugin_dir = (PLUGINS_ROOT / slug).resolve()
+
+    # Path-traversal guard
+    if PLUGINS_ROOT.resolve() not in plugin_dir.parents:
+        raise HTTPException(status_code=400, detail="Invalid slug")
+    if not plugin_dir.exists():
+        raise HTTPException(status_code=404, detail=f"Plugin '{slug}' not found")
+
+    cert_file = plugin_dir / "cert" / "cert.pem"
+    key_file  = plugin_dir / "cert" / "key.pem"
+    meta_file = plugin_dir / "cert" / "meta.json"
+
+    # --- All three cert artefacts are required ---
+    missing = []
+    if not cert_file.exists():
+        missing.append("cert.pem")
+    if not key_file.exists():
+        missing.append("key.pem")
+    if not meta_file.exists():
+        missing.append("meta.json")
+
+    if missing:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                f"Plugin '{slug}' is missing certificate files: {', '.join(missing)}. "
+                "Certificates are only issued at plugin-creation time. "
+                "Please re-create the plugin."
+            )
+        )
+
+    # --- Load and validate meta.json identity ---
+    try:
+        meta = json.loads(meta_file.read_text(encoding="utf-8"))
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to parse meta.json for plugin '{slug}': {exc}"
+        )
+
+    meta_plugin_id = meta.get("plugin_id")
+    if meta_plugin_id and meta_plugin_id != slug:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Certificate identity mismatch for plugin '{slug}': "
+                f"meta.json plugin_id is '{meta_plugin_id}'"
+            )
+        )
+
+    return {
+        "cert_pem": cert_file.read_text(encoding="utf-8"),
+        "key_pem": key_file.read_text(encoding="utf-8"),
+        "meta": meta,
+    }
 
 class StartPayload(BaseModel):
     slug: str

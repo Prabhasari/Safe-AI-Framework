@@ -36,6 +36,7 @@ root_ca = load_or_create_root_ca(KEYS_DIR)
 class IssueCertRequest(BaseModel):
     plugin_id: str = Field(..., min_length=3, max_length=100)
     ttl_hours: int = Field(3, ge=1, le=168)
+    persistent: bool = Field(False, description="If true, certificate is long-lived (100 years) for creation-time issuance")
 
 
 class IssueCertResponse(BaseModel):
@@ -86,14 +87,17 @@ def get_root_ca():
 def issue_cert(req: IssueCertRequest, request: Request, db: Session = Depends(get_db)):
     client_ip = request.client.host if request.client else "unknown"
     
-    clog.log_cert_request(req.plugin_id, req.ttl_hours, client_ip)
+    # For persistent (creation-time) certs, use 100-year validity
+    effective_ttl = 100 * 365 * 24 if req.persistent else req.ttl_hours
+    
+    clog.log_cert_request(req.plugin_id, effective_ttl, client_ip)
     
     try:
         plugin_key_pem, plugin_cert_pem, expires_at, serial_number = issue_plugin_cert(
             root_key_pem=root_ca.key_pem,
             root_cert_pem=root_ca.cert_pem,
             plugin_id=req.plugin_id,
-            ttl_hours=req.ttl_hours,
+            ttl_hours=effective_ttl,
         )
         
         # Store certificate in database
@@ -108,13 +112,14 @@ def issue_cert(req: IssueCertRequest, request: Request, db: Session = Depends(ge
         db.commit()
         
         # Log audit entry
+        cert_type = "persistent" if req.persistent else "ephemeral"
         _log_audit(
             db=db,
             operation="ISSUE",
             plugin_id=req.plugin_id,
             serial_number=serial_number,
             success=True,
-            details=f"Certificate issued with TTL {req.ttl_hours} hours",
+            details=f"Certificate issued ({cert_type}) with TTL {effective_ttl} hours",
             ip_address=client_ip
         )
         
