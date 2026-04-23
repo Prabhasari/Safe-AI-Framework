@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import UmlViewerModal, { type DiagramType, type AiUmlStore } from "../components/UmlViewerModal.tsx";
-import ChatHistoryPanel, { type HistoryEntry } from "../components/ChatHistoryPanel.tsx";
-import DastPanel, { type DastReport } from "../components/DastPanel.tsx";
+import ChatHistoryPanel, { type HistoryEntry }               from "../components/ChatHistoryPanel.tsx";
+import DastPanel, { type DastReport }                        from "../components/DastPanel.tsx";
+import MultiFileCodeViewer                                    from "../components/MultiFileCodeViewer.tsx";
 import {
   CheckCircle2, MinusCircle, Shield, Sparkles,
   Copy, Check, Code2, ChevronDown, Zap, Clock, ArrowLeft,
@@ -15,98 +16,98 @@ import {
 ══════════════════════════════════════════════════════════════════════════ */
 
 type Finding = {
-  check_id?: string;
-  severity?: string;
-  message?: string;
-  path?: string;
-  start?: { line?: number };
+  check_id?:  string;
+  severity?:  string;
+  message?:   string;
+  path?:      string;
+  start?:     { line?: number };
   has_autofix?: boolean;
 };
 
 type SemgrepReport = {
-  ok?: boolean;
-  initial_findings?: number;
-  final_findings?: number;
-  autofix_applied?: boolean;
-  fixes_applied?: number;
-  auto_fixable_count?: number;
-  manual_only_count?: number;
-  packs?: string[];
-  languages?: string[];
-  file_count?: number;
+  ok?:                  boolean;
+  initial_findings?:    number;
+  final_findings?:      number;
+  autofix_applied?:     boolean;
+  fixes_applied?:       number;
+  auto_fixable_count?:  number;
+  manual_only_count?:   number;
+  packs?:               string[];
+  languages?:           string[];
+  file_count?:          number;
   categorized_findings?: {
     initially_auto_fixable?: Finding[];
-    initially_manual_only?: Finding[];
-    still_remaining?: Finding[];
-    remaining_needs_llm?: Finding[];
+    initially_manual_only?:  Finding[];
+    still_remaining?:        Finding[];
+    remaining_needs_llm?:    Finding[];
   };
 };
 
 type LlmFixReport = {
-  fixed?: boolean;
-  attempted?: boolean;
+  fixed?:         boolean;
+  attempted?:     boolean;
   issues_before?: number;
-  issues_after?: number;
+  issues_after?:  number;
   fixes_applied?: number;
-  error?: string;
-  reason?: string;
+  error?:         string;
+  reason?:        string;
 };
 
 type UmlValidationEntry = { ok: boolean; errors: string[] };
-type UmlValidationMap = Partial<
+type UmlValidationMap   = Partial<
   Record<"class" | "package" | "sequence" | "component" | "activity", UmlValidationEntry>
 >;
 
 type UmlReport = {
-  ok?: boolean;
-  file_count?: number;
-  error?: string | null;
-  cir?: unknown;
-  class_svg?: string | null;
-  package_svg?: string | null;
-  sequence_svg?: string | null;
-  component_svg?: string | null;
-  activity_svg?: string | null;
-  ai_class_svg?: string | null;
-  ai_package_svg?: string | null;
-  ai_sequence_svg?: string | null;
-  ai_component_svg?: string | null;
-  ai_activity_svg?: string | null;
-  ai_class_plantuml?: string | null;
-  ai_package_plantuml?: string | null;
-  ai_sequence_plantuml?: string | null;
+  ok?:                    boolean;
+  file_count?:            number;
+  error?:                 string | null;
+  cir?:                   unknown;
+  class_svg?:             string | null;
+  package_svg?:           string | null;
+  sequence_svg?:          string | null;
+  component_svg?:         string | null;
+  activity_svg?:          string | null;
+  ai_class_svg?:          string | null;
+  ai_package_svg?:        string | null;
+  ai_sequence_svg?:       string | null;
+  ai_component_svg?:      string | null;
+  ai_activity_svg?:       string | null;
+  ai_class_plantuml?:     string | null;
+  ai_package_plantuml?:   string | null;
+  ai_sequence_plantuml?:  string | null;
   ai_component_plantuml?: string | null;
-  ai_activity_plantuml?: string | null;
-  validation?: UmlValidationMap;
-  ai_validation?: UmlValidationMap;
+  ai_activity_plantuml?:  string | null;
+  validation?:            UmlValidationMap;
+  ai_validation?:         UmlValidationMap;
 };
 
 type Report = {
-  policy_version?: string;
+  policy_version?:           string;
   prompt_after_enhancement?: string;
-  semgrep?: SemgrepReport;
-  llm_fix?: LlmFixReport;
-  dast?: DastReport;
-  dast_llm_fix?: LlmFixReport;
-  uml?: UmlReport;
-  total_fixes_applied?: number;
+  semgrep?:                  SemgrepReport;
+  llm_fix?:                  LlmFixReport;
+  dast?:                     DastReport;
+  dast_llm_fix?:             LlmFixReport;
+  uml?:                      UmlReport;
+  total_fixes_applied?:      number;
   fix_summary?: {
-    initial_issues?: number;
-    semgrep_fixed?: number;
-    llm_fixed?: number;
-    dast_findings?: number;
-    dast_fixed?: number;
-    remaining_issues?: number;
-    dast_remaining?: number;
-    fix_rate_percent?: number;
+    initial_issues?:    number;
+    semgrep_fixed?:     number;
+    llm_fixed?:         number;
+    dast_findings?:     number;
+    dast_fixed?:        number;
+    remaining_issues?:  number;
+    dast_remaining?:    number;
+    fix_rate_percent?:  number;
   };
 };
 
 type ApiResult = {
-  code: string;
+  code:           string;
   original_code?: string;
-  report: Report;
-  decision?: string;
+  report:         Report;
+  decision?:      string;
 };
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -118,10 +119,10 @@ const HISTORY_API = "http://localhost:8000/api/history/save";
 const UML_AI_API  = "http://localhost:7081/uml/ai";
 
 type DiagramMeta = {
-  type: DiagramType;
-  label: string;
+  type:        DiagramType;
+  label:       string;
   description: string;
-  svgKey: keyof UmlReport;
+  svgKey:      keyof UmlReport;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Icon: React.ComponentType<any>;
 };
@@ -191,8 +192,8 @@ async function saveToHistory(prompt: string, result: ApiResult): Promise<void> {
     });
   } catch {
     try {
-      const raw = localStorage.getItem("secure_gen_history");
-      const existing: HistoryEntry[] = raw ? JSON.parse(raw) : [];
+      const raw      = localStorage.getItem("secure_gen_history");
+      const existing = raw ? (JSON.parse(raw) as HistoryEntry[]) : [];
       existing.unshift(entry);
       localStorage.setItem("secure_gen_history", JSON.stringify(existing.slice(0, 50)));
     } catch { /**/ }
@@ -210,7 +211,7 @@ export default function SecureGenerator() {
   const [copied, setCopied]             = useState(false);
   const [showOriginal, setShowOriginal] = useState(false);
   const [securityReportOpen, setSecurityReportOpen] = useState(false);
-  const [sastOpen, setSastOpen] = useState(false);
+  const [sastOpen, setSastOpen]         = useState(false);
 
   // UML modal
   const [umlOpen, setUmlOpen]       = useState(false);
@@ -268,8 +269,6 @@ export default function SecureGenerator() {
       ai_activity_svg:  entry.uml.ai_activity_svg,
     } : undefined;
 
-    const restoredAiCache = restoredUml ? buildAiCacheFromReport(restoredUml) : {};
-
     setOut({
       code:          entry.code,
       original_code: entry.original_code,
@@ -280,7 +279,7 @@ export default function SecureGenerator() {
         uml:         restoredUml,
       } as Report,
     });
-    setAiUmlCache(restoredAiCache);
+    setAiUmlCache(restoredUml ? buildAiCacheFromReport(restoredUml) : {});
     setShowOriginal(false);
     setCopied(false);
     setUmlOpen(false);
@@ -358,7 +357,6 @@ export default function SecureGenerator() {
             </p>
           </div>
 
-          {/* Pipeline status badges — shown while loading */}
           {loading && (
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
               {["SAST", "DAST", "UML"].map((stage) => (
@@ -393,7 +391,7 @@ export default function SecureGenerator() {
                 <textarea
                   rows={6}
                   style={{ width: "100%", padding: 16, borderRadius: 12, border: "1px solid #3d2060", fontSize: 13, fontFamily: "inherit", resize: "vertical", outline: "none", boxSizing: "border-box", background: "#150f24", color: "#ffffff", transition: "border-color 0.2s", lineHeight: 1.6 }}
-                  placeholder="e.g., give javascript code for student management system..."
+                  placeholder="e.g., give java code for student management system..."
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   onFocus={(e) => (e.target.style.borderColor = "#4F0C87")}
@@ -472,22 +470,20 @@ export default function SecureGenerator() {
                   )}
                 </div>
               )}
-
             </div>{/* end left column */}
 
             {/* ════════════════════════════════
-                Right Column
+                Right Column — Generated Code
             ════════════════════════════════ */}
             {out && (
               <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-
-                {/* Generated Code */}
                 <div style={{ background: "#231636", borderRadius: 16, padding: 24, border: "1px solid #3d2060" }}>
+
+                  {/* Header row */}
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
                     <div style={{ fontSize: 11, fontWeight: 600, color: "#c4b5d6", textTransform: "uppercase", letterSpacing: "0.1em", display: "flex", alignItems: "center", gap: 8 }}>
                       <Code2 size={14} color="#c084fc" />
                       Generated Code
-                      {/* Decision badge */}
                       {out.decision && (
                         <span style={{
                           fontSize: 9, padding: "2px 8px", borderRadius: 4, fontWeight: 700,
@@ -506,20 +502,38 @@ export default function SecureGenerator() {
                         </span>
                       )}
                     </div>
+
+                    {/* Show Original / Show Fixed toggle */}
                     {out.original_code && out.original_code !== out.code && (
                       <button
                         onClick={() => setShowOriginal(!showOriginal)}
-                        style={{ padding: "6px 12px", borderRadius: 6, border: "1px solid #4F0C87", background: showOriginal ? "#4F0C87" : "transparent", color: "#ffffff", fontSize: 11, fontWeight: 600, cursor: "pointer", textTransform: "uppercase", letterSpacing: "0.05em" }}
+                        style={{
+                          padding: "6px 12px", borderRadius: 6, border: "1px solid #4F0C87",
+                          background: showOriginal ? "#4F0C87" : "transparent",
+                          color: "#ffffff", fontSize: 11, fontWeight: 600,
+                          cursor: "pointer", textTransform: "uppercase", letterSpacing: "0.05em",
+                        }}
                       >
                         {showOriginal ? "Show Fixed" : "Show Original"}
                       </button>
                     )}
                   </div>
-                  <pre style={{ whiteSpace: "pre-wrap", margin: 0, fontSize: 12, lineHeight: 1.7, background: "#110c1e", color: "#ffffff", padding: 20, borderRadius: 10, overflow: "auto", maxHeight: 500, fontFamily: "'Fira Code','Cascadia Code',monospace" }}>
-                    {showOriginal ? out.original_code : out.code}
-                  </pre>
-                </div>
 
+                  {/*
+                    ★ MultiFileCodeViewer — imported from ../components/MultiFileCodeViewer.tsx
+                      Replaces the old single <pre> block.
+                      Parses === FILE: path === separators automatically and renders:
+                        • Collapsible folder tree sidebar
+                        • Per-file code pane with line numbers + syntax highlighting
+                        • "Copy All" toolbar button
+                        • "Connect to Core System" button → modal with integration guide
+                  */}
+                  <MultiFileCodeViewer
+                    code={showOriginal ? (out.original_code ?? out.code) : out.code}
+                    decision={out.decision}
+                  />
+
+                </div>
               </div>
             )}
 
@@ -532,7 +546,7 @@ export default function SecureGenerator() {
             <div style={{ marginTop: 24, maxWidth: 1600 }}>
               <div style={{ background: "#231636", borderRadius: 16, border: "1px solid #3d2060", overflow: "hidden" }}>
 
-                {/* ── Collapsible header ── */}
+                {/* Collapsible header */}
                 <div
                   onClick={() => setSecurityReportOpen(!securityReportOpen)}
                   style={{
@@ -573,7 +587,6 @@ export default function SecureGenerator() {
                     </div>
                   </div>
 
-                  {/* Quick score pills */}
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     {fixSummary && (fixSummary.initial_issues ?? 0) > 0 && (
                       <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 20, background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.25)" }}>
@@ -597,12 +610,12 @@ export default function SecureGenerator() {
                   </div>
                 </div>
 
-                {/* ── Expanded body ── */}
+                {/* Expanded body */}
                 {securityReportOpen && (
                   <div style={{ padding: "28px 28px 24px" }}>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "start" }}>
 
-                      {/* ── Left: SAST ── */}
+                      {/* SAST */}
                       <div>
                         <div style={{ fontSize: 11, fontWeight: 700, color: "#c4b5d6", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
                           <div style={{ width: 3, height: 14, borderRadius: 2, background: "#c084fc" }} />
@@ -611,13 +624,15 @@ export default function SecureGenerator() {
 
                         {fixSummary && (fixSummary.initial_issues ?? 0) > 0 ? (
                           <>
-                            {/* 4 metric cards in 2×2 — clickable to expand findings */}
                             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
                               {[
-                                { label: "Initial Issues", val: fixSummary.initial_issues,  color: "#ef4444", bg: "rgba(239,68,68,0.08)",   border: "rgba(239,68,68,0.2)"   },
-                                { label: "Semgrep Fixed",  val: fixSummary.semgrep_fixed,   color: "#10b981", bg: "rgba(16,185,129,0.08)",  border: "rgba(16,185,129,0.2)"  },
-                                { label: "LLM Fixed",      val: fixSummary.llm_fixed ?? 0,  color: "#60a5fa", bg: "rgba(96,165,250,0.08)",  border: "rgba(96,165,250,0.2)"  },
-                                { label: "Remaining",      val: fixSummary.remaining_issues, color: (fixSummary.remaining_issues ?? 0) === 0 ? "#10b981" : "#f59e0b", bg: (fixSummary.remaining_issues ?? 0) === 0 ? "rgba(16,185,129,0.08)" : "rgba(245,158,11,0.08)", border: (fixSummary.remaining_issues ?? 0) === 0 ? "rgba(16,185,129,0.2)" : "rgba(245,158,11,0.2)" },
+                                { label: "Initial Issues", val: fixSummary.initial_issues,   color: "#ef4444", bg: "rgba(239,68,68,0.08)",   border: "rgba(239,68,68,0.2)"   },
+                                { label: "Semgrep Fixed",  val: fixSummary.semgrep_fixed,    color: "#10b981", bg: "rgba(16,185,129,0.08)",  border: "rgba(16,185,129,0.2)"  },
+                                { label: "LLM Fixed",      val: fixSummary.llm_fixed ?? 0,   color: "#60a5fa", bg: "rgba(96,165,250,0.08)",  border: "rgba(96,165,250,0.2)"  },
+                                { label: "Remaining",      val: fixSummary.remaining_issues,
+                                  color:  (fixSummary.remaining_issues ?? 0) === 0 ? "#10b981" : "#f59e0b",
+                                  bg:     (fixSummary.remaining_issues ?? 0) === 0 ? "rgba(16,185,129,0.08)" : "rgba(245,158,11,0.08)",
+                                  border: (fixSummary.remaining_issues ?? 0) === 0 ? "rgba(16,185,129,0.2)"  : "rgba(245,158,11,0.2)"  },
                               ].map(({ label, val, color, bg, border }) => (
                                 <div key={label} style={{ padding: "14px 16px", background: bg, borderRadius: 10, border: `1px solid ${border}` }}>
                                   <div style={{ fontSize: 9, color: "#9a7ab5", marginBottom: 6, textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.06em" }}>{label}</div>
@@ -626,7 +641,6 @@ export default function SecureGenerator() {
                               ))}
                             </div>
 
-                            {/* Progress bar */}
                             <div style={{ padding: "12px 14px", background: "#110c1e", borderRadius: 10, border: "1px solid #2d1f45", marginBottom: 10 }}>
                               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 11 }}>
                                 <span style={{ color: "#9a7ab5" }}>
@@ -641,7 +655,6 @@ export default function SecureGenerator() {
                               </div>
                             </div>
 
-                            {/* Success banner */}
                             {(fixSummary.remaining_issues ?? 0) === 0 && (
                               <div style={{ marginBottom: 10, padding: "10px 14px", background: "rgba(16,185,129,0.08)", borderRadius: 8, border: "1px solid rgba(16,185,129,0.25)", display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#10b981", fontWeight: 600 }}>
                                 <CheckCircle2 size={14} />
@@ -649,12 +662,11 @@ export default function SecureGenerator() {
                               </div>
                             )}
 
-                            {/* ── Clickable findings toggle ── */}
                             {(() => {
-                              const cat = out?.report?.semgrep?.categorized_findings;
+                              const cat         = out?.report?.semgrep?.categorized_findings;
                               const allFindings = [
                                 ...(cat?.initially_auto_fixable ?? []),
-                                ...(cat?.initially_manual_only ?? []),
+                                ...(cat?.initially_manual_only  ?? []),
                               ];
                               if (allFindings.length === 0) return null;
 
@@ -663,7 +675,6 @@ export default function SecureGenerator() {
 
                               return (
                                 <div>
-                                  {/* Toggle button */}
                                   <button
                                     onClick={() => setSastOpen(!sastOpen)}
                                     style={{
@@ -682,20 +693,14 @@ export default function SecureGenerator() {
                                     <ChevronDown size={14} color="#9a7ab5" style={{ transform: sastOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
                                   </button>
 
-                                  {/* Findings list */}
                                   {sastOpen && (
                                     <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
                                       {allFindings.map((f, i) => {
-                                        const sev = (f.severity ?? "INFO").toUpperCase();
+                                        const sev   = (f.severity ?? "INFO").toUpperCase();
                                         const color = SEV_COLOR[sev] ?? "#94a3b8";
                                         const bg    = SEV_BG[sev]    ?? "rgba(148,163,184,0.1)";
                                         return (
-                                          <div key={i} style={{
-                                            padding: "10px 12px", borderRadius: 8,
-                                            background: "#0d0818",
-                                            border: `1px solid ${color}30`,
-                                          }}>
-                                            {/* Row 1: badge + rule id */}
+                                          <div key={i} style={{ padding: "10px 12px", borderRadius: 8, background: "#0d0818", border: `1px solid ${color}30` }}>
                                             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
                                               <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 4, color, background: bg, border: `1px solid ${color}40`, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                                                 {sev}
@@ -709,11 +714,9 @@ export default function SecureGenerator() {
                                                 </span>
                                               )}
                                             </div>
-                                            {/* Row 2: message */}
                                             <div style={{ fontSize: 11, color: "#c4b5d6", lineHeight: 1.5, marginBottom: f.path ? 5 : 0 }}>
                                               {f.message ?? "No description"}
                                             </div>
-                                            {/* Row 3: file + line */}
                                             {f.path && (
                                               <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 4 }}>
                                                 <Code2 size={10} color={color} />
@@ -732,7 +735,6 @@ export default function SecureGenerator() {
                             })()}
                           </>
                         ) : (
-                          /* ── No issues found ── */
                           <div style={{ padding: "24px 16px", background: "rgba(16,185,129,0.06)", borderRadius: 10, border: "1px solid rgba(16,185,129,0.2)", textAlign: "center" }}>
                             <CheckCircle2 size={28} color="#10b981" style={{ marginBottom: 10 }} />
                             <div style={{ fontSize: 14, color: "#10b981", fontWeight: 700, marginBottom: 4 }}>No SAST Issues Found</div>
@@ -743,7 +745,7 @@ export default function SecureGenerator() {
                         )}
                       </div>
 
-                      {/* ── Right: DAST ── */}
+                      {/* DAST */}
                       <div>
                         <div style={{ fontSize: 11, fontWeight: 700, color: "#c4b5d6", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
                           <div style={{ width: 3, height: 14, borderRadius: 2, background: "#f59e0b" }} />
@@ -769,7 +771,7 @@ export default function SecureGenerator() {
         </div>
       </div>
 
-      {/* ── UML Modal ── */}
+      {/* UML Modal */}
       {uml && !uml.error && (
         <UmlViewerModal
           open={umlOpen}
@@ -785,7 +787,7 @@ export default function SecureGenerator() {
         />
       )}
 
-      {/* ── History Panel ── */}
+      {/* History Panel */}
       <ChatHistoryPanel
         open={historyOpen}
         onClose={() => setHistoryOpen(false)}
