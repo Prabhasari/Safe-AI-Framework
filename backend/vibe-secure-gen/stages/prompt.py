@@ -26,7 +26,11 @@ Follow ALL rules below so every diagram type renders correctly.
 ━━━ UNIVERSAL RULES (apply to every language) ━━━
 
 RULE 1 — CLASS STRUCTURE
-  Define 2–4 classes with clear single responsibilities.
+  Define as many classes as needed for the requested system.
+  For simple examples, 2–4 classes is fine.
+  For complex systems, prefer 4–7+ classes with clear single responsibilities.
+  If the system is layered or has distinct concerns, split classes across files
+  instead of forcing everything into one file.
   One class must be a SERVICE that orchestrates the others.
   The others are COLLABORATORS: a repository/DAO, a utility/helper, or a model.
   Example roles: AuthService (service), UserRepository (repository),
