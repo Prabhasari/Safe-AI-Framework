@@ -28,14 +28,118 @@ export type MultiFileCodeViewerProps = {
 };
 
 /* ══════════════════════════════════════════════════════════════════════════
+   Language → filename mapping
+   Used when the LLM returns a single fenced block with no FILE: separators.
+   The fence tag (e.g. ```python) tells us what filename to use.
+══════════════════════════════════════════════════════════════════════════ */
+
+const LANG_TO_FILENAME: Record<string, string> = {
+  python:     "main.py",
+  py:         "main.py",
+  javascript: "main.js",
+  js:         "main.js",
+  typescript: "main.ts",
+  ts:         "main.ts",
+  java:       "Main.java",
+  kotlin:     "Main.kt",
+  kt:         "Main.kt",
+  go:         "main.go",
+  golang:     "main.go",
+  rust:       "main.rs",
+  rs:         "main.rs",
+  php:        "main.php",
+  ruby:       "main.rb",
+  rb:         "main.rb",
+  csharp:     "Main.cs",
+  cs:         "Main.cs",
+  cpp:        "main.cpp",
+  c:          "main.c",
+  scala:      "Main.scala",
+  swift:      "main.swift",
+  bash:       "main.sh",
+  sh:         "main.sh",
+  sql:        "query.sql",
+  html:       "index.html",
+  css:        "styles.css",
+};
+
+/**
+ * Given a fence language tag (e.g. "python", "java", "txt", ""),
+ * return the best single-file fallback filename.
+ *
+ * Also handles the case where Gemini hits MAX_TOKENS and wraps a partial
+ * response in ```txt, but the inner content still starts with its own
+ * ```python fence — we scan the inner content for a nested fence tag too.
+ */
+function guessFallbackFilename(fenceLang: string, innerContent: string): string {
+  // 1. Direct match on the outer fence tag
+  const direct = LANG_TO_FILENAME[fenceLang.toLowerCase()];
+  if (direct) return direct;
+
+  // 2. If outer fence is "txt" or empty (partial generation wrapped by
+  //    _ensure_single_fence), scan the inner content for a nested fence
+  //    opening like ```python or ```java at the very start.
+  const nestedFenceMatch = innerContent.match(/^```([a-zA-Z0-9_+\-]+)/m);
+  if (nestedFenceMatch) {
+    const nestedLang = nestedFenceMatch[1].toLowerCase();
+    const nested     = LANG_TO_FILENAME[nestedLang];
+    if (nested) return nested;
+  }
+
+  // 3. Heuristic: scan the first 30 lines of content for language signals
+  const preview = innerContent.split("\n").slice(0, 30).join("\n").toLowerCase();
+
+  if (preview.includes("def ") || preview.includes("import os") ||
+      preview.includes("import sys") || preview.includes("#!/usr/bin/env python") ||
+      preview.includes("from flask") || preview.includes("from django") ||
+      preview.includes("print(") || preview.includes("bcrypt") && preview.includes("def ")) {
+    return "main.py";
+  }
+  if (preview.includes("public class") || preview.includes("public static void main") ||
+      preview.includes("import java.")) {
+    return "Main.java";
+  }
+  if (preview.includes("function ") || preview.includes("const ") ||
+      preview.includes("require(") || preview.includes("console.log(")) {
+    return "main.js";
+  }
+  if (preview.includes("interface ") || preview.includes(": string") ||
+      preview.includes(": number") || preview.includes("readonly ")) {
+    return "main.ts";
+  }
+  if (preview.includes("func main()") || preview.includes("package main")) {
+    return "main.go";
+  }
+  if (preview.includes("<?php")) {
+    return "main.php";
+  }
+  if (preview.includes("fn main()") || preview.includes("use std::")) {
+    return "main.rs";
+  }
+  if (preview.includes("def initialize") || preview.includes("require_relative") ||
+      preview.includes("puts ") || preview.includes("end\n")) {
+    return "main.rb";
+  }
+  if (preview.includes("using system") || preview.includes("namespace ") ||
+      preview.includes("static void main")) {
+    return "Main.cs";
+  }
+
+  // 4. Final fallback — unknown language
+  return "main.txt";
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
    Utility: parse === FILE: ... === blob
 ══════════════════════════════════════════════════════════════════════════ */
 
 export function parseMultiFileBlob(blob: string): ParsedFile[] {
   if (!blob) return [];
 
-  const fenceMatch = blob.match(/^```[a-zA-Z0-9_+\-]*\s*\n([\s\S]*?)\n```$/m);
-  const inner      = fenceMatch ? fenceMatch[1] : blob;
+  // Extract fence lang tag and inner content
+  const fenceMatch = blob.match(/^```([a-zA-Z0-9_+\-]*)\s*\n([\s\S]*?)\n```$/m);
+  const fenceLang  = fenceMatch ? (fenceMatch[1] ?? "").trim().toLowerCase() : "";
+  const inner      = fenceMatch ? fenceMatch[2] : blob;
 
   const FILE_SEP = /^===\s*FILE:\s*(.+?)\s*===\s*$/m;
   const lines    = inner.split("\n");
@@ -58,9 +162,14 @@ export function parseMultiFileBlob(blob: string): ParsedFile[] {
   }
   flush();
 
+  // Single-file fallback: no FILE: separators found
   if (files.length === 0 && inner.trim()) {
-    files.push({ path: "Main.java", content: inner.trim() });
+    // FIX: was hardcoded to "Main.java" — now detects language from fence tag
+    // or inner content so Python/JS/Go etc. all get the right filename.
+    const filename = guessFallbackFilename(fenceLang, inner);
+    files.push({ path: filename, content: inner.trim() });
   }
+
   return files;
 }
 
@@ -84,6 +193,19 @@ function fileIconMeta(path: string): FileIconMeta {
     md:         { Icon: FileText, color: "#94a3b8" },
     properties: { Icon: FileText, color: "#e879f9" },
     gradle:     { Icon: Package,  color: "#f97316" },
+    php:        { Icon: FileCode, color: "#a78bfa" },
+    rb:         { Icon: FileCode, color: "#ef4444" },
+    rs:         { Icon: FileCode, color: "#f97316" },
+    cs:         { Icon: FileCode, color: "#60a5fa" },
+    cpp:        { Icon: FileCode, color: "#f97316" },
+    c:          { Icon: FileCode, color: "#60a5fa" },
+    sh:         { Icon: Terminal, color: "#34d399" },
+    html:       { Icon: FileCode, color: "#f97316" },
+    css:        { Icon: FileCode, color: "#60a5fa" },
+    swift:      { Icon: FileCode, color: "#f97316" },
+    kt:         { Icon: FileCode, color: "#a78bfa" },
+    scala:      { Icon: FileCode, color: "#ef4444" },
+    txt:        { Icon: FileText, color: "#94a3b8" },
   };
   return map[ext] ?? { Icon: Code2, color: "#94a3b8" };
 }
@@ -182,7 +304,7 @@ function TreeNode({
     );
   }
 
-  // Root level (no __file / __dir flag)
+  // Root level
   return (
     <div>
       {Object.entries(node).map(([k, v]) => (
@@ -385,14 +507,14 @@ function highlightLine(line: string, ext: string): string {
         '<span style="color:#a78bfa">$1</span><span style="color:#86efac">$2</span>');
   }
 
-  if (["java", "py", "js", "ts", "go"].includes(ext)) {
+  if (["java", "py", "js", "ts", "go", "php", "rb", "rs", "cs", "kt", "swift", "scala"].includes(ext)) {
     return safe
       .replace(/(\/\/.*|#.*)/g,
         '<span style="color:#475569;font-style:italic">$1</span>')
       .replace(/(&quot;.*?&quot;|&#x27;.*?&#x27;)/g,
         '<span style="color:#86efac">$1</span>')
       .replace(
-        /\b(public|private|protected|class|interface|extends|implements|import|package|static|void|return|new|if|else|for|while|try|catch|final|abstract|def|fun|var|let|const|func|struct|enum|case|switch|break|continue|throws|throw|this|super|null|true|false|async|await)\b/g,
+        /\b(public|private|protected|class|interface|extends|implements|import|package|static|void|return|new|if|else|for|while|try|catch|final|abstract|def|fun|var|let|const|func|struct|enum|case|switch|break|continue|throws|throw|this|super|null|true|false|async|await|fn|pub|use|mod|impl|match|self|mut|ref|type|where|yield|from|with|as|in|is|not|and|or|pass|lambda|del|raise|except|finally|elif|global|nonlocal|print|echo|require|include|namespace|using)\b/g,
         '<span style="color:#c084fc;font-weight:600">$1</span>',
       )
       .replace(/\b([A-Z][A-Za-z0-9]*)\b/g,
@@ -519,7 +641,6 @@ export default function MultiFileCodeViewer({ code, decision }: MultiFileCodeVie
           borderBottom: "1px solid #2d2060",
           display: "flex", alignItems: "center", gap: 8, flexShrink: 0,
         }}>
-          {/* File count label */}
           <span style={{
             fontSize: 11, fontWeight: 600, color: "#9a7ab5",
             display: "flex", alignItems: "center", gap: 6, flex: 1,
@@ -528,7 +649,6 @@ export default function MultiFileCodeViewer({ code, decision }: MultiFileCodeVie
             {files.length} file{files.length !== 1 ? "s" : ""} generated
           </span>
 
-          {/* Copy All button */}
           <button
             onClick={copyAll}
             style={{
@@ -543,7 +663,6 @@ export default function MultiFileCodeViewer({ code, decision }: MultiFileCodeVie
             {allCopied ? <><Check size={11} /> Copied!</> : <><Copy size={11} /> Copy All</>}
           </button>
 
-          {/* ★ Connect to Core System */}
           <button
             onClick={() => setConnectOpen(true)}
             style={{

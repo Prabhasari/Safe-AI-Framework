@@ -13,6 +13,7 @@ def check_docker():
 
 def pull_images():
     images = [
+        # ── Original languages ─────────────────────────────────────────────
         "python:3.11-alpine",
         "node:18-alpine",
         "golang:1.21-alpine",
@@ -20,6 +21,16 @@ def pull_images():
         #      eclipse-temurin:17-jdk-alpine is the official Adoptium replacement —
         #      same JDK 17, same Alpine base, maintained by Eclipse Foundation.
         "eclipse-temurin:17-jdk-alpine",
+
+        # ── NEW languages ──────────────────────────────────────────────────
+        # PHP: lightweight Alpine-based CLI image (~50MB), direct script execution
+        "php:8.2-cli-alpine",
+        # Ruby: lightweight Alpine-based image (~60MB), direct script execution
+        "ruby:3.2-alpine",
+        # C#: Mono provides mcs (compiler) + mono (runtime), lighter than dotnet SDK
+        "mono:latest",
+        # Rust: Alpine-based image with rustc compiler (~300MB compressed)
+        "rust:1.75-alpine",
     ]
     print("\n🐳 Pre-pulling sandbox images...")
     for image in images:
@@ -48,11 +59,15 @@ def main():
     if docker_ok:
         pull_images()
         print("\n📦 Sandbox language support:")
-        print("   ✔ Python      (python:3.11-alpine)")
-        print("   ✔ JavaScript  (node:18-alpine)")
-        print("   ✔ TypeScript  (node:18-alpine)")
-        print("   ✔ Go          (golang:1.21-alpine)")
-        print("   ✔ Java        (eclipse-temurin:17-jdk-alpine)  ← compile + run")
+        print("   ✔ Python      (python:3.11-alpine)              ← direct run")
+        print("   ✔ JavaScript  (node:18-alpine)                  ← direct run")
+        print("   ✔ TypeScript  (node:18-alpine)                  ← direct run")
+        print("   ✔ Go          (golang:1.21-alpine)              ← go run (compile + run)")
+        print("   ✔ Java        (eclipse-temurin:17-jdk-alpine)   ← javac compile + java run")
+        print("   ✔ PHP         (php:8.2-cli-alpine)              ← direct run")
+        print("   ✔ Ruby        (ruby:3.2-alpine)                 ← direct run")
+        print("   ✔ C#          (mono:latest)                     ← mcs compile + mono run")
+        print("   ✔ Rust        (rust:1.75-alpine)                ← rustc compile + run")
     else:
         print("\n💡 To enable Docker sandbox execution:")
         print("   1. Install Docker Desktop from https://docker.com")
