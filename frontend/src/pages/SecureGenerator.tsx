@@ -304,9 +304,22 @@ export default function SecureGenerator() {
     setUmlOpen(true);
   };
 
-  const fixSummary = out?.report?.fix_summary;
-  const uml        = out?.report?.uml;
-  const dast       = out?.report?.dast;
+  const fixSummary  = out?.report?.fix_summary;
+  const uml         = out?.report?.uml;
+  const dast        = out?.report?.dast;
+  const dastLlmFix  = out?.report?.dast_llm_fix;   // ← Stage 6 result
+
+  // ── Derived DAST fix counts for header/badge display ──────────────────
+  const dastTotal     = dast?.summary?.total ?? 0;
+  const dastFixed     = dastLlmFix?.fixed === true ? (dastLlmFix?.fixes_applied ?? 0) : 0;
+  const dastRemaining = dastTotal - dastFixed;
+
+  // ── Helper: build the DAST badge text ─────────────────────────────────
+  const dastBadgeText = (() => {
+    if (dastTotal === 0) return "✔ clean";
+    if (dastFixed > 0)   return `${dastTotal} found · ${dastFixed} fixed · ${dastRemaining} remaining`;
+    return `${dastTotal} finding(s)`;
+  })();
 
   /* ── RENDER ───────────────────────────────────────────────────────────── */
   return (
@@ -503,7 +516,6 @@ export default function SecureGenerator() {
                       )}
                     </div>
 
-                    {/* Show Original / Show Fixed toggle */}
                     {out.original_code && out.original_code !== out.code && (
                       <button
                         onClick={() => setShowOriginal(!showOriginal)}
@@ -519,20 +531,10 @@ export default function SecureGenerator() {
                     )}
                   </div>
 
-                  {/*
-                    ★ MultiFileCodeViewer — imported from ../components/MultiFileCodeViewer.tsx
-                      Replaces the old single <pre> block.
-                      Parses === FILE: path === separators automatically and renders:
-                        • Collapsible folder tree sidebar
-                        • Per-file code pane with line numbers + syntax highlighting
-                        • "Copy All" toolbar button
-                        • "Connect to Core System" button → modal with integration guide
-                  */}
                   <MultiFileCodeViewer
                     code={showOriginal ? (out.original_code ?? out.code) : out.code}
                     decision={out.decision}
                   />
-
                 </div>
               </div>
             )}
@@ -567,6 +569,8 @@ export default function SecureGenerator() {
                       </div>
                       <div style={{ fontSize: 11, color: "#9a7ab5", marginTop: 1 }}>
                         Policy: {out.report.policy_version ?? "LLM01-2025-v1"}
+
+                        {/* ── SAST subtitle ── */}
                         {fixSummary && (
                           <span style={{ marginLeft: 12 }}>
                             · SAST{" "}
@@ -575,11 +579,16 @@ export default function SecureGenerator() {
                             </span>
                           </span>
                         )}
+
+                        {/* ── DAST subtitle — shows found/fixed/remaining ── */}
                         {dast && dast.ok && (
                           <span style={{ marginLeft: 12 }}>
                             · DAST{" "}
-                            <span style={{ color: (dast.summary?.total ?? 0) === 0 ? "#10b981" : "#f97316", fontWeight: 600 }}>
-                              {(dast.summary?.total ?? 0) === 0 ? "✔ clean" : `${dast.summary?.total} finding(s)`}
+                            <span style={{
+                              color: dastTotal === 0 ? "#10b981" : dastFixed > 0 ? "#10b981" : "#f97316",
+                              fontWeight: 600,
+                            }}>
+                              {dastBadgeText}
                             </span>
                           </span>
                         )}
@@ -588,6 +597,7 @@ export default function SecureGenerator() {
                   </div>
 
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    {/* SAST fix rate badge */}
                     {fixSummary && (fixSummary.initial_issues ?? 0) > 0 && (
                       <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 20, background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.25)" }}>
                         <Shield size={11} color="#10b981" />
@@ -596,13 +606,23 @@ export default function SecureGenerator() {
                         </span>
                       </div>
                     )}
+
+                    {/* ── DAST badge — now shows found/fixed/remaining ── */}
                     {dast && dast.ok && (
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 20, background: dast.docker_available ? "rgba(99,102,241,0.12)" : "rgba(245,158,11,0.1)", border: `1px solid ${dast.docker_available ? "rgba(99,102,241,0.3)" : "rgba(245,158,11,0.25)"}` }}>
+                      <div style={{
+                        display: "flex", alignItems: "center", gap: 6, padding: "5px 12px",
+                        borderRadius: 20,
+                        background: dast.docker_available ? "rgba(99,102,241,0.12)" : "rgba(245,158,11,0.1)",
+                        border: `1px solid ${dast.docker_available ? "rgba(99,102,241,0.3)" : "rgba(245,158,11,0.25)"}`,
+                      }}>
                         <span style={{ fontSize: 11, color: dast.docker_available ? "#a5b4fc" : "#f59e0b", fontWeight: 600 }}>
-                          {dast.docker_available ? "🐳 Docker" : "⚡ Pattern"} · {dast.summary?.total ?? 0} finding(s)
+                          {dast.docker_available ? "🐳 Docker" : "⚡ Pattern"}
+                          {" · "}
+                          {dastBadgeText}
                         </span>
                       </div>
                     )}
+
                     <ChevronDown
                       size={16} color="#9a7ab5"
                       style={{ transform: securityReportOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.25s", marginLeft: 4 }}
@@ -615,7 +635,7 @@ export default function SecureGenerator() {
                   <div style={{ padding: "28px 28px 24px" }}>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "start" }}>
 
-                      {/* SAST */}
+                      {/* ── SAST section ── */}
                       <div>
                         <div style={{ fontSize: 11, fontWeight: 700, color: "#c4b5d6", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
                           <div style={{ width: 3, height: 14, borderRadius: 2, background: "#c084fc" }} />
@@ -745,7 +765,7 @@ export default function SecureGenerator() {
                         )}
                       </div>
 
-                      {/* DAST */}
+                      {/* ── DAST section — passes dastLlmFix so panel knows actual fix count ── */}
                       <div>
                         <div style={{ fontSize: 11, fontWeight: 700, color: "#c4b5d6", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
                           <div style={{ width: 3, height: 14, borderRadius: 2, background: "#f59e0b" }} />
@@ -753,7 +773,10 @@ export default function SecureGenerator() {
                         </div>
 
                         {dast && dast.ok ? (
-                          <DastPanel dast={dast} />
+                          <DastPanel
+                            dast={dast}
+                            dastLlmFix={dastLlmFix}
+                          />
                         ) : (
                           <div style={{ padding: "20px 16px", background: "#110c1e", borderRadius: 10, border: "1px solid #2d1f45", textAlign: "center" }}>
                             <div style={{ fontSize: 13, color: "#9a7ab5" }}>DAST results unavailable</div>

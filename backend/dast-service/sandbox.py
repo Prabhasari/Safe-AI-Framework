@@ -8,6 +8,12 @@ FIXED:
   2. Properly handles multi-file code blobs via === FILE: === separators.
   3. Captures execution PROOF: container ID, image digest, timing, output.
   4. Java: compiles with javac, detects main class, runs with java.
+
+ADDED LANGUAGES:
+  5. PHP    — php:8.2-cli-alpine       (direct run, no compile)
+  6. Ruby   — ruby:3.2-alpine          (direct run, no compile)
+  7. C#     — mono:latest              (mcs compile + mono run)
+  8. Rust   — rust:1.75-alpine         (rustc compile + run)
 """
 
 from __future__ import annotations
@@ -49,11 +55,7 @@ def _find_java_main_class(files: Dict[str, str]) -> Optional[str]:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  Sandbox image config
-#
-#  ⚠️  openjdk:17-alpine was REMOVED from Docker Hub in Feb 2024.
-#     The official replacement is eclipse-temurin:17-jdk-alpine (Eclipse Adoptium).
-#     It provides the same JDK 17 with javac + java, same Alpine base.
+#  Language runner helpers
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _java_runner(entrypoint: str) -> List[str]:
@@ -68,7 +70,42 @@ def _java_runner(entrypoint: str) -> List[str]:
     ]
 
 
+def _csharp_runner(entrypoint: str) -> List[str]:
+    """
+    Compile all .cs files under /sandbox using mcs (Mono C# compiler),
+    then run the compiled binary with mono.
+    mono:latest image provides both mcs (compiler) and mono (runtime).
+    Output binary written to /tmp/app.exe (tmpfs mounted writable).
+    """
+    return [
+        "sh", "-c",
+        "find /sandbox -name '*.cs' | xargs mcs -out:/tmp/app.exe 2>&1 && "
+        "mono /tmp/app.exe 2>&1"
+    ]
+
+
+def _rust_runner(entrypoint: str) -> List[str]:
+    """
+    Compile the main .rs entry file with rustc, then run the output binary.
+    Output binary written to /tmp/program (tmpfs mounted writable).
+    """
+    return [
+        "sh", "-c",
+        f"rustc /sandbox/{entrypoint} -o /tmp/program 2>&1 && "
+        "/tmp/program 2>&1"
+    ]
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  Sandbox image config
+#
+#  ⚠️  openjdk:17-alpine was REMOVED from Docker Hub in Feb 2024.
+#     The official replacement is eclipse-temurin:17-jdk-alpine (Eclipse Adoptium).
+#     It provides the same JDK 17 with javac + java, same Alpine base.
+# ─────────────────────────────────────────────────────────────────────────────
+
 SANDBOX_CONFIG: Dict[str, Dict[str, Any]] = {
+    # ── Original languages ─────────────────────────────────────────────────
     "python": {
         "image":  "python:3.11-alpine",
         "ext":    ".py",
@@ -96,7 +133,42 @@ SANDBOX_CONFIG: Dict[str, Dict[str, Any]] = {
         "ext":    ".java",
         "runner": lambda ep: _java_runner(ep),
     },
+
+    # ── NEW: Additional languages ──────────────────────────────────────────
+    "php": {
+        # php:8.2-cli-alpine is lightweight (~50MB), runs PHP scripts directly.
+        # No compilation needed — identical pattern to Python.
+        "image":  "php:8.2-cli-alpine",
+        "ext":    ".php",
+        "runner": lambda ep: ["php", f"/sandbox/{ep}"],
+    },
+    "ruby": {
+        # ruby:3.2-alpine is lightweight (~60MB), runs Ruby scripts directly.
+        # No compilation needed — identical pattern to Python.
+        "image":  "ruby:3.2-alpine",
+        "ext":    ".rb",
+        "runner": lambda ep: ["ruby", f"/sandbox/{ep}"],
+    },
+    "csharp": {
+        # mono:latest provides mcs (Mono C# compiler) + mono (runtime).
+        # Lighter than the full dotnet SDK image (~800MB compressed).
+        # mcs compiles to /tmp/app.exe, mono runs it.
+        "image":  "mono:latest",
+        "ext":    ".cs",
+        "runner": lambda ep: _csharp_runner(ep),
+    },
+    "rust": {
+        # rust:1.75-alpine provides rustc compiler.
+        # rustc compiles to /tmp/program, then it is executed directly.
+        "image":  "rust:1.75-alpine",
+        "ext":    ".rs",
+        "runner": lambda ep: _rust_runner(ep),
+    },
 }
+
+# Languages that require compilation before running.
+# These need /tmp writable and higher memory limits.
+_COMPILE_LANGS = {"java", "csharp", "rust"}
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  Multi-file blob parser
@@ -126,6 +198,7 @@ def _split_into_files(inner: str) -> Dict[str, str]:
 
 
 def _pick_entrypoint(files: Dict[str, str], lang: str, ext: str) -> Optional[str]:
+    # Java: detect the class containing main()
     if lang == "java":
         main_class = _find_java_main_class(files)
         if main_class:
@@ -137,10 +210,34 @@ def _pick_entrypoint(files: Dict[str, str], lang: str, ext: str) -> Optional[str
                     return simple
         return None
 
+    # C#: mcs compiles ALL .cs files — just need any .cs file to exist.
+    # The runner uses 'find /sandbox -name *.cs' so entrypoint is not used
+    # directly in the command, but we return the most likely main file name
+    # for logging purposes.
+    if lang == "csharp":
+        priority_cs = ["Program.cs", "Main.cs", "main.cs", "App.cs"]
+        for name in priority_cs:
+            if name in files:
+                return name
+        for name in files:
+            if name.endswith(".cs"):
+                return name
+        return None
+
+    # All other languages: use priority list then fall back to extension match
     priority = [
+        # Python
         "main.py", "app.py", "server.py", "run.py",
+        # JavaScript / TypeScript
         "main.js", "app.js", "index.js", "server.js",
+        # Go
         "main.go",
+        # PHP
+        "main.php", "index.php", "app.php",
+        # Ruby
+        "main.rb", "app.rb", "run.rb",
+        # Rust
+        "main.rs",
     ]
     for name in priority:
         if name in files:
@@ -318,8 +415,17 @@ def execute_in_sandbox(
     inner    = _strip_fence(code_blob)
     file_map = _split_into_files(inner)
 
+    # Filter files to only the relevant extension for compiled languages
     if lang == "java":
         lang_files = {k: v for k, v in file_map.items() if k.endswith(".java")}
+        if not lang_files:
+            lang_files = file_map
+    elif lang == "csharp":
+        lang_files = {k: v for k, v in file_map.items() if k.endswith(".cs")}
+        if not lang_files:
+            lang_files = file_map
+    elif lang == "rust":
+        lang_files = {k: v for k, v in file_map.items() if k.endswith(".rs")}
         if not lang_files:
             lang_files = file_map
     else:
@@ -328,19 +434,31 @@ def execute_in_sandbox(
     entrypoint = _pick_entrypoint(lang_files, lang, cfg["ext"])
     run_cmd    = cfg["runner"](entrypoint) if entrypoint else None
 
+    # ── Strategy label for logging ─────────────────────────────────────────
+    strategy_map = {
+        "java":   "javac (compile all) → java (run main class)",
+        "csharp": "mcs (compile all .cs) → mono (run app.exe)",
+        "rust":   "rustc (compile main.rs) → run binary",
+        "go":     "go run . (compile + run)",
+    }
+
     print(f"\n  {'='*60}")
     print(f"  🐳 DOCKER SANDBOX EXECUTION")
     print(f"  {'='*60}")
     print(f"  Language   : {lang}")
     print(f"  Image      : {cfg['image']}")
-    if lang == "java":
-        print(f"  Main class : {entrypoint or '(not found)'}")
-        print(f"  Strategy   : javac (compile all) → java (run main class)")
+    if lang in strategy_map:
+        print(f"  Strategy   : {strategy_map[lang]}")
+    if lang in ("java", "csharp"):
+        print(f"  Entrypoint : {entrypoint or '(not found)'}")
     print(f"  Files ({len(lang_files)})  :")
     for fname in sorted(lang_files.keys()):
         print(f"    • {fname}  ({len(lang_files[fname])} chars)")
     print(f"  Timeout    : {timeout}s")
-    print(f"  Isolation  : --network=none  --read-only  --memory=128m  --cap-drop=ALL")
+
+    # ── Memory label for logging ───────────────────────────────────────────
+    mem = "256m" if lang in ("csharp", "rust") else ("128m" if lang == "java" else "64m")
+    print(f"  Isolation  : --network=none  --read-only  --memory={mem}  --cap-drop=ALL")
 
     if not entrypoint:
         msg = (
@@ -365,7 +483,9 @@ def execute_in_sandbox(
         print(f"  Image ID   : {image_id or 'unknown'}")
         print(f"  Started at : {started_at}")
 
+        # ── Build docker run command based on language requirements ────────
         if lang == "java":
+            # Java needs /tmp/classes tmpfs for compiled .class files
             docker_cmd = [
                 "docker", "run", "--rm",
                 "--network=none",
@@ -382,7 +502,26 @@ def execute_in_sandbox(
                 cfg["image"],
                 *run_cmd,
             ]
+        elif lang in ("csharp", "rust"):
+            # C# and Rust both need /tmp writable for compiled output binary.
+            # Higher memory: Mono/rustc compiler needs more RAM than a Python script.
+            docker_cmd = [
+                "docker", "run", "--rm",
+                "--network=none",
+                "--read-only",
+                "--memory=256m",
+                "--memory-swap=256m",
+                "--cpus=0.5",
+                "--security-opt=no-new-privileges",
+                "--cap-drop=ALL",
+                f"--volume={td}:/sandbox:ro",
+                "--tmpfs=/tmp:size=128m",
+                "--pids-limit=100",
+                cfg["image"],
+                *run_cmd,
+            ]
         else:
+            # Python, JS, TS, Go, PHP, Ruby — interpreted or lightweight compile
             docker_cmd = [
                 "docker", "run", "--rm",
                 "--network=none",
@@ -400,7 +539,7 @@ def execute_in_sandbox(
             ]
 
         print(f"  Command    : docker run --rm --network=none ... {cfg['image']}")
-        if lang == "java":
+        if lang in _COMPILE_LANGS:
             print(f"  Run cmd    : {' '.join(run_cmd)}")
 
         run_result = _run_with_container_id(docker_cmd, timeout)
@@ -412,15 +551,30 @@ def execute_in_sandbox(
         stdout       = run_result["stdout"]
         stderr       = run_result["stderr"]
 
+        # ── Compile error detection (Java, C#, Rust) ──────────────────────
         java_compile_error = (
             lang == "java" and returncode != 0 and
             ("error:" in stderr.lower() or "cannot find symbol" in stderr.lower()
              or "javac" in stderr.lower())
         )
+        csharp_compile_error = (
+            lang == "csharp" and returncode != 0 and
+            ("error" in stderr.lower() or "mcs" in stderr.lower()
+             or "compilation failed" in stderr.lower())
+        )
+        rust_compile_error = (
+            lang == "rust" and returncode != 0 and
+            ("error" in stderr.lower() or "rustc" in stderr.lower()
+             or "aborting due to" in stderr.lower())
+        )
+
+        # Single flag used for all compile-time error handling below
+        compile_error = java_compile_error or csharp_compile_error or rust_compile_error
 
         stdout_lines = stdout.strip().splitlines()
         stderr_lines = stderr.strip().splitlines()
 
+        # ── Build proof dict ───────────────────────────────────────────────
         proof = {
             "image":         cfg["image"],
             "image_id":      image_id,
@@ -433,13 +587,13 @@ def execute_in_sandbox(
             "stderr_lines":  stderr_lines[:20],
             "entrypoint":    entrypoint,
             "files":         sorted(lang_files.keys()),
-            "compile_error": java_compile_error,
+            "compile_error": compile_error,
             "isolation": {
                 "network":    "none",
                 "read_only":  True,
-                "memory":     "128m" if lang == "java" else "64m",
+                "memory":     mem,
                 "cpus":       "0.5",
-                "pids_limit": 100 if lang == "java" else 50,
+                "pids_limit": 100 if lang in _COMPILE_LANGS else 50,
                 "cap_drop":   "ALL",
             },
         }
@@ -448,8 +602,10 @@ def execute_in_sandbox(
         print(f"  Elapsed    : {elapsed_ms}ms")
         print(f"  Exit code  : {returncode}")
 
-        if java_compile_error:
-            print(f"  ⚠️  Java compilation errors detected:")
+        # ── Print output ───────────────────────────────────────────────────
+        if compile_error:
+            lang_names = {"java": "Java", "csharp": "C#", "rust": "Rust"}
+            print(f"  ⚠️  {lang_names.get(lang, lang)} compilation errors detected:")
             for line in stderr_lines[:10]:
                 print(f"    │ {line}")
         else:
@@ -464,7 +620,7 @@ def execute_in_sandbox(
 
         if timed_out:
             print(f"  Result     : ⏰ TIMED OUT after {timeout}s!")
-        elif java_compile_error:
+        elif compile_error:
             print(f"  Result     : ⚠️  Compiled with errors (runtime signals still checked)")
         elif returncode == 0:
             print(f"  Result     : ✔ Executed successfully")
@@ -497,7 +653,7 @@ def execute_in_sandbox(
             "stderr":             stderr[:2000],
             "timed_out":          False,
             "skipped":            False,
-            "java_compile_error": java_compile_error,
+            "java_compile_error": compile_error,   # kept for frontend compatibility
             "files_executed":     list(lang_files.keys()),
             "entrypoint":         entrypoint,
             "lang":               lang,
@@ -515,17 +671,25 @@ _RUNTIME_SIGNALS = [
     ("name or service not",    "runtime-network-attempt",     "HIGH",     "DNS lookup attempted (blocked) — SSRF risk.",                             "A10 - SSRF"),
     ("unknownhostexception",   "runtime-network-attempt",     "HIGH",     "Java DNS lookup attempted (blocked) — SSRF risk.",                        "A10 - SSRF"),
     ("connectexception",       "runtime-network-attempt",     "HIGH",     "Java network connection attempted (blocked) — SSRF risk.",                "A10 - SSRF"),
+    ("could not connect",      "runtime-network-attempt",     "HIGH",     "Network connection attempted (blocked) — SSRF risk.",                     "A10 - SSRF"),
+    ("failed to connect",      "runtime-network-attempt",     "HIGH",     "Network connection attempted (blocked) — SSRF risk.",                     "A10 - SSRF"),
     ("permission denied",      "runtime-unauthorized-access", "HIGH",     "Unauthorized file/resource access attempted at runtime.",                 "A01 - Broken Access Control"),
     ("accesscontrolexception", "runtime-unauthorized-access", "HIGH",     "Java AccessControlException — unauthorized access attempted.",            "A01 - Broken Access Control"),
     ("segmentation fault",     "runtime-memory-corruption",   "CRITICAL", "Segmentation fault — memory safety vulnerability.",                      "A06 - Vulnerable Components"),
     ("stack overflow",         "runtime-stack-overflow",      "HIGH",     "Stack overflow detected — unbounded recursion.",                          "A06 - Vulnerable Components"),
     ("stackoverflowerror",     "runtime-stack-overflow",      "HIGH",     "Java StackOverflowError — unbounded recursion detected.",                 "A06 - Vulnerable Components"),
     ("recursionerror",         "runtime-stack-overflow",      "HIGH",     "RecursionError — unbounded recursion detected.",                          "A06 - Vulnerable Components"),
-    ("outofmemoryerror",       "runtime-memory-exhaustion",   "MEDIUM",   "Java OutOfMemoryError — memory exhaustion vulnerability.",               "A06 - Vulnerable Components"),
+    ("stack level too deep",   "runtime-stack-overflow",      "HIGH",     "Ruby stack level too deep — unbounded recursion detected.",               "A06 - Vulnerable Components"),
+    ("outofmemoryerror",       "runtime-memory-exhaustion",   "MEDIUM",   "Java OutOfMemoryError — memory exhaustion vulnerability.",                "A06 - Vulnerable Components"),
     ("memoryerror",            "runtime-memory-exhaustion",   "MEDIUM",   "MemoryError — memory exhaustion vulnerability.",                          "A06 - Vulnerable Components"),
+    ("out of memory",          "runtime-memory-exhaustion",   "MEDIUM",   "Out of memory — memory exhaustion vulnerability.",                        "A06 - Vulnerable Components"),
     ("classnotfoundexception", "runtime-classpath-issue",     "LOW",      "Java ClassNotFoundException — missing dependency at runtime.",            "A06 - Vulnerable Components"),
     ("sql syntax",             "runtime-sql-error",           "HIGH",     "SQL syntax error at runtime — possible injection or unparameterized query.", "A03 - Injection"),
     ("sqlexception",           "runtime-sql-error",           "MEDIUM",   "Java SQLException at runtime — database error detected.",                 "A03 - Injection"),
+    ("php fatal error",        "runtime-php-fatal",           "HIGH",     "PHP Fatal Error detected at runtime.",                                    "A06 - Vulnerable Components"),
+    ("php warning",            "runtime-php-warning",         "LOW",      "PHP Warning detected at runtime — potential unsafe operation.",           "A06 - Vulnerable Components"),
+    ("undefined method",       "runtime-undefined-method",    "MEDIUM",   "Undefined method called at runtime — potential logic error.",             "A06 - Vulnerable Components"),
+    ("nosuchmethoderror",      "runtime-undefined-method",    "MEDIUM",   "NoSuchMethodError — method not found at runtime.",                        "A06 - Vulnerable Components"),
 ]
 
 
