@@ -15,15 +15,15 @@ export type DastFinding = {
   owasp?:    string;
   cwe?:      string | null;
   line?:     number | null;
-  file?:     string | null;          // ← NEW: filename
+  file?:     string | null;
   snippet?:  string | null;
-  fix_hint?: string | null;          // ← NEW: remediation advice
+  fix_hint?: string | null;
   source:    "pattern_scan" | "docker_execution";
   runtime:   boolean;
   proof_of_execution?: ProofOfExecution | null;
 };
 
-export type ProofOfExecution = {   // ← NEW
+export type ProofOfExecution = {
   image:        string;
   image_id?:    string | null;
   container_id?: string | null;
@@ -45,7 +45,7 @@ export type ProofOfExecution = {   // ← NEW
   };
 };
 
-export type DastFixResult = {       // ← NEW
+export type DastFixResult = {
   attempted:     boolean;
   fixed:         boolean;
   fixed_code?:   string | null;
@@ -85,13 +85,28 @@ export type DastReport = {
     error?:     string;
     proof_of_execution?: ProofOfExecution | null;
   }>;
-  proof_of_executions?: ProofOfExecution[];  // ← NEW
+  proof_of_executions?: ProofOfExecution[];
   languages:  string[];
   summary:    DastSummary;
-  fix_result?: DastFixResult;                // ← NEW
+  fix_result?: DastFixResult;
 };
 
-type Props = { dast: DastReport };
+/* ── NEW: Stage 6 LLM fix result type (from pipeline.py dast_llm_fix) ────── */
+export type DastLlmFixResult = {
+  fixed?:         boolean;
+  attempted?:     boolean;
+  fixes_applied?: number;
+  issues_before?: number;
+  issues_after?:  number;
+  error?:         string;
+  reason?:        string;
+};
+
+/* ── Updated Props — added dastLlmFix ────────────────────────────────────── */
+type Props = {
+  dast:        DastReport;
+  dastLlmFix?: DastLlmFixResult | null;  // Stage 6 result from pipeline.py
+};
 
 /* ── Severity helpers ────────────────────────────────────────────────────── */
 const SEV_COLOR: Record<string, string> = {
@@ -132,10 +147,7 @@ function ProofCard({ proof }: { proof: ProofOfExecution }) {
     }}>
       <div
         onClick={() => setOpen(!open)}
-        style={{
-          padding: "10px 14px", cursor: "pointer", display: "flex",
-          alignItems: "center", gap: 10,
-        }}
+        style={{ padding: "10px 14px", cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}
       >
         <Terminal size={13} color="#6366f1" />
         <div style={{ flex: 1 }}>
@@ -172,15 +184,12 @@ function ProofCard({ proof }: { proof: ProofOfExecution }) {
 
       {open && (
         <div style={{ padding: "0 14px 14px 14px", display: "flex", flexDirection: "column", gap: 8 }}>
-          {/* Isolation details */}
           {proof.isolation && (
-            <div style={{
-              display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 6,
-            }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 6 }}>
               {[
-                { icon: <Cpu size={9} />, label: "CPUs",    val: proof.isolation.cpus },
-                { icon: <Container size={9} />, label: "Memory", val: proof.isolation.memory },
-                { icon: <Shield size={9} />, label: "Network", val: proof.isolation.network },
+                { icon: <Cpu size={9} />,       label: "CPUs",    val: proof.isolation.cpus },
+                { icon: <Container size={9} />, label: "Memory",  val: proof.isolation.memory },
+                { icon: <Shield size={9} />,    label: "Network", val: proof.isolation.network },
               ].map(({ icon, label, val }) => (
                 <div key={label} style={{
                   padding: "6px 8px", background: "#0a0910", borderRadius: 6,
@@ -193,24 +202,18 @@ function ProofCard({ proof }: { proof: ProofOfExecution }) {
               ))}
             </div>
           )}
-
-          {/* Image ID */}
           {proof.image_id && (
             <div style={{ fontSize: 10, color: "#475569", fontFamily: "monospace" }}>
               <span style={{ color: "#334155" }}>Image digest: </span>
               <span style={{ color: "#6366f1" }}>{proof.image_id}</span>
             </div>
           )}
-
-          {/* Entrypoint */}
           {proof.entrypoint && (
             <div style={{ fontSize: 10, color: "#475569" }}>
               <span style={{ color: "#334155" }}>Entrypoint: </span>
               <span style={{ color: "#94a3b8", fontFamily: "monospace" }}>{proof.entrypoint}</span>
             </div>
           )}
-
-          {/* stdout */}
           {(proof.stdout_lines ?? []).length > 0 && (
             <div>
               <div style={{ fontSize: 9, color: "#334155", marginBottom: 4, fontWeight: 600, textTransform: "uppercase" }}>STDOUT</div>
@@ -224,8 +227,6 @@ function ProofCard({ proof }: { proof: ProofOfExecution }) {
               </pre>
             </div>
           )}
-
-          {/* stderr */}
           {(proof.stderr_lines ?? []).length > 0 && (
             <div>
               <div style={{ fontSize: 9, color: "#334155", marginBottom: 4, fontWeight: 600, textTransform: "uppercase" }}>STDERR</div>
@@ -261,7 +262,6 @@ function FindingRow({
       background: isUnfixable ? "#0d0008" : "#0a0910",
       overflow: "hidden", marginBottom: 8,
     }}>
-      {/* header */}
       <div
         onClick={() => setOpen(!open)}
         style={{ padding: "10px 12px", cursor: "pointer", display: "flex", alignItems: "flex-start", gap: 10 }}
@@ -297,7 +297,6 @@ function FindingRow({
             )}
           </div>
 
-          {/* File + line — prominent display */}
           {(finding.file || finding.line) && (
             <div style={{
               display: "flex", alignItems: "center", gap: 5,
@@ -324,7 +323,6 @@ function FindingRow({
         />
       </div>
 
-      {/* expanded detail */}
       {open && (
         <div style={{ padding: "0 12px 12px 44px", display: "flex", flexDirection: "column", gap: 6 }}>
           {finding.owasp && (
@@ -338,8 +336,6 @@ function FindingRow({
               <span style={{ color: "#64748b" }}>CWE: </span>{finding.cwe}
             </div>
           )}
-
-          {/* Fix hint — especially useful for unfixable */}
           {finding.fix_hint && (
             <div style={{
               padding: "8px 10px", borderRadius: 6,
@@ -354,7 +350,6 @@ function FindingRow({
               </div>
             </div>
           )}
-
           {finding.snippet && (
             <div>
               <div style={{ fontSize: 9, color: "#334155", marginBottom: 3, fontWeight: 600, textTransform: "uppercase" }}>Matched snippet</div>
@@ -432,63 +427,27 @@ function ExecRow({ exec }: { exec: DastReport["execution_results"][0] }) {
   );
 }
 
-/* ── Fix result banner ───────────────────────────────────────────────────── */
-function FixBanner({ fix }: { fix: DastFixResult }) {
-  if (!fix.attempted && !fix.fixes_applied) return null;
-
-  const success = fix.fixed && fix.fixes_applied > 0;
-  const color   = success ? "#10b981" : "#f59e0b";
-
-  return (
-    <div style={{
-      padding: "10px 14px", borderRadius: 8, marginBottom: 14,
-      background: success ? "rgba(16,185,129,0.08)" : "rgba(245,158,11,0.08)",
-      border: `1px solid ${color}40`,
-      display: "flex", alignItems: "center", gap: 8,
-    }}>
-      {success
-        ? <CheckCircle2 size={16} color={color} />
-        : <Wrench size={16} color={color} />}
-      <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 12, color, fontWeight: 600 }}>
-          {success
-            ? `LLM auto-fixed ${fix.fixes_applied} finding(s)`
-            : fix.attempted
-            ? "LLM fix attempted — some issues require manual remediation"
-            : "LLM fix not attempted — see unfixable findings below"}
-        </div>
-        {fix.error && (
-          <div style={{ fontSize: 10, color: "#64748b", marginTop: 2 }}>{fix.error}</div>
-        )}
-      </div>
-      {(fix.unfixable ?? []).length > 0 && (
-        <span style={{
-          fontSize: 10, padding: "2px 8px", borderRadius: 4, fontWeight: 700,
-          background: "rgba(239,68,68,0.15)", color: "#fca5a5",
-        }}>
-          {fix.unfixable!.length} unfixable
-        </span>
-      )}
-    </div>
-  );
-}
-
 /* ══════════════════════════════════════════════════════════════════════════ */
-export default function DastPanel({ dast }: Props) {
-  const [findingsOpen,   setFindingsOpen]   = useState(true);
-  const [unfixableOpen,  setUnfixableOpen]  = useState(true);
-  const [execOpen,       setExecOpen]       = useState(false);
-  const [proofOpen,      setProofOpen]      = useState(false);
+export default function DastPanel({ dast, dastLlmFix }: Props) {
+  const [findingsOpen,  setFindingsOpen]  = useState(true);
+  const [unfixableOpen, setUnfixableOpen] = useState(true);
+  const [execOpen,      setExecOpen]      = useState(false);
+  const [proofOpen,     setProofOpen]     = useState(false);
 
   const { summary, findings, execution_results } = dast;
-  const fixResult     = dast.fix_result;
-  const unfixable     = fixResult?.unfixable ?? [];
-  const proofList     = dast.proof_of_executions ?? [];
-  const noIssues      = summary.total === 0;
+  const fixResult  = dast.fix_result;
+  const unfixable  = fixResult?.unfixable ?? [];
+  const proofList  = dast.proof_of_executions ?? [];
+  const noIssues   = summary.total === 0;
+
+  // ── Stage 6 LLM fix stats (passed from pipeline.py via SecureGenerator) ──
+  const llmFixApplied     = dastLlmFix?.fixed === true;
+  const llmFixCount       = dastLlmFix?.fixes_applied ?? 0;
+  const remainingAfterFix = summary.total - llmFixCount;
 
   // Separate normal findings from unfixable for display
-  const unfixableIds  = new Set(unfixable.map(f => f.check_id + (f.line ?? "")));
-  const fixableShown  = findings.filter(f => !unfixableIds.has(f.check_id + (f.line ?? "")));
+  const unfixableIds = new Set(unfixable.map(f => f.check_id + (f.line ?? "")));
+  const fixableShown = findings.filter(f => !unfixableIds.has(f.check_id + (f.line ?? "")));
 
   return (
     <div style={{ background: "#1a1f2e", borderRadius: 16, padding: 24, border: "1px solid #2d3548" }}>
@@ -531,7 +490,7 @@ export default function DastPanel({ dast }: Props) {
         })}
       </div>
 
-      {/* ── Clean ── */}
+      {/* ── Clean state ── */}
       {noIssues && (
         <div style={{
           padding: 14, background: "rgba(16,185,129,0.08)",
@@ -544,8 +503,49 @@ export default function DastPanel({ dast }: Props) {
         </div>
       )}
 
-      {/* ── LLM fix banner ── */}
-      {fixResult && <FixBanner fix={fixResult} />}
+      {/* ── Stage 6 LLM fix summary banner ─────────────────────────────────
+           This reads from pipeline.py's dast_llm_fix (Stage 6), which is the
+           actual fix result. dast.fix_result is always attempted=False because
+           dast-service delegates fixing to pipeline.py Stage 6.
+      ── */}
+      {llmFixApplied && llmFixCount > 0 && (
+        <div style={{
+          padding: "14px 16px", borderRadius: 10, marginBottom: 16,
+          background: "rgba(16,185,129,0.07)",
+          border: "1px solid rgba(16,185,129,0.3)",
+          display: "flex", alignItems: "center", gap: 14,
+        }}>
+          <CheckCircle2 size={20} color="#10b981" style={{ flexShrink: 0 }} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, color: "#10b981", fontWeight: 700, marginBottom: 3 }}>
+              LLM Auto-fixed {llmFixCount} of {summary.total} DAST finding(s)
+            </div>
+            <div style={{ fontSize: 11, color: "#6ee7b7", lineHeight: 1.5 }}>
+              {remainingAfterFix > 0
+                ? `${remainingAfterFix} finding(s) still require manual review`
+                : "All findings resolved — code is clean"}
+            </div>
+          </div>
+          {/* Stat cards: Found / Fixed / Remaining */}
+          <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+            {[
+              { label: "Found",     val: summary.total,     color: "#f97316" },
+              { label: "Fixed",     val: llmFixCount,        color: "#10b981" },
+              { label: "Remaining", val: remainingAfterFix,
+                color: remainingAfterFix === 0 ? "#10b981" : "#f59e0b" },
+            ].map(({ label, val, color }) => (
+              <div key={label} style={{
+                padding: "8px 12px", background: "#0f1419",
+                borderRadius: 8, border: "1px solid #2d3548", textAlign: "center",
+                minWidth: 56,
+              }}>
+                <div style={{ fontSize: 20, fontWeight: 700, color, lineHeight: 1 }}>{val}</div>
+                <div style={{ fontSize: 9, color: "#475569", fontWeight: 600, marginTop: 4 }}>{label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── OWASP coverage ── */}
       {summary.owasp_coverage.length > 0 && (
@@ -559,7 +559,7 @@ export default function DastPanel({ dast }: Props) {
         </div>
       )}
 
-      {/* ── Unfixable findings (most prominent) ── */}
+      {/* ── Unfixable findings ── */}
       {unfixable.length > 0 && (
         <div style={{ marginBottom: 16 }}>
           <div
@@ -580,14 +580,13 @@ export default function DastPanel({ dast }: Props) {
             </div>
             <ChevronDown size={13} color="#ef4444" style={{ transform: unfixableOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }} />
           </div>
-
           {unfixableOpen && unfixable.map((f, i) => (
             <FindingRow key={`uf-${f.check_id}-${i}`} finding={f} index={i} isUnfixable />
           ))}
         </div>
       )}
 
-      {/* ── Regular findings ── */}
+      {/* ── All findings ── */}
       {fixableShown.length > 0 && (
         <div style={{ marginBottom: 16 }}>
           <div
@@ -606,14 +605,13 @@ export default function DastPanel({ dast }: Props) {
             </div>
             <ChevronDown size={13} color="#475569" style={{ transform: findingsOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }} />
           </div>
-
           {findingsOpen && findings.map((f, i) => (
             <FindingRow key={`f-${f.check_id}-${i}`} finding={f} index={i} />
           ))}
         </div>
       )}
 
-      {/* ── Proof of Execution (top-level proofs) ── */}
+      {/* ── Proof of Execution ── */}
       {proofList.length > 0 && (
         <div style={{ marginBottom: 12 }}>
           <div
@@ -633,14 +631,13 @@ export default function DastPanel({ dast }: Props) {
             </div>
             <ChevronDown size={13} color="#6366f1" style={{ transform: proofOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }} />
           </div>
-
           {proofOpen && proofList.map((proof, i) => (
             <ProofCard key={i} proof={proof} />
           ))}
         </div>
       )}
 
-      {/* ── Docker execution results ── */}
+      {/* ── Sandbox execution results ── */}
       {execution_results.length > 0 && (
         <div>
           <div
@@ -659,18 +656,17 @@ export default function DastPanel({ dast }: Props) {
             </div>
             <ChevronDown size={13} color="#475569" style={{ transform: execOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }} />
           </div>
-
           {execOpen && execution_results.map((e, i) => (
             <ExecRow key={`${e.lang}-${i}`} exec={e} />
           ))}
         </div>
       )}
 
-      {/* ── Source breakdown footer ── */}
+      {/* ── Footer — source breakdown + fix counts ── */}
       <div style={{
-        marginTop: 14, padding: "8px 12px", borderRadius: 7,
+        marginTop: 14, padding: "10px 14px", borderRadius: 8,
         background: "#0f1419", border: "1px solid #1e1b2e",
-        display: "flex", gap: 20, flexWrap: "wrap",
+        display: "flex", gap: 20, flexWrap: "wrap", alignItems: "center",
       }}>
         <div style={{ fontSize: 11, color: "#475569" }}>
           <span style={{ color: "#64748b" }}>Pattern scan: </span>
@@ -684,14 +680,40 @@ export default function DastPanel({ dast }: Props) {
           <span style={{ color: "#64748b" }}>Languages: </span>
           <span style={{ color: "#94a3b8", fontWeight: 600 }}>{dast.languages.join(", ") || "—"}</span>
         </div>
-        {summary.unfixable_count !== undefined && summary.unfixable_count > 0 && (
-          <div style={{ fontSize: 11, color: "#475569", marginLeft: "auto" }}>
-            <span style={{ color: "#64748b" }}>Auto-fixed: </span>
-            <span style={{ color: "#10b981", fontWeight: 600 }}>{summary.fixes_applied ?? 0}</span>
-            <span style={{ color: "#64748b" }}>  Unfixable: </span>
-            <span style={{ color: "#ef4444", fontWeight: 600 }}>{summary.unfixable_count}</span>
-          </div>
-        )}
+
+        {/* ── Fix counts — always show when there are findings ── */}
+        <div style={{ marginLeft: "auto", display: "flex", gap: 16, alignItems: "center" }}>
+          <span style={{ fontSize: 11, color: "#475569" }}>
+            <span style={{ color: "#64748b" }}>Total found: </span>
+            <span style={{ color: "#f97316", fontWeight: 600 }}>{summary.total}</span>
+          </span>
+          {llmFixApplied ? (
+            <>
+              <span style={{ fontSize: 11, color: "#475569" }}>
+                <span style={{ color: "#64748b" }}>LLM fixed: </span>
+                <span style={{ color: "#10b981", fontWeight: 600 }}>{llmFixCount}</span>
+              </span>
+              <span style={{ fontSize: 11, color: "#475569" }}>
+                <span style={{ color: "#64748b" }}>Remaining: </span>
+                <span style={{
+                  color: remainingAfterFix === 0 ? "#10b981" : "#f59e0b",
+                  fontWeight: 600,
+                }}>
+                  {remainingAfterFix}
+                </span>
+              </span>
+            </>
+          ) : (
+            summary.total > 0 && (
+              <span style={{ fontSize: 11, color: "#475569" }}>
+                <span style={{ color: "#64748b" }}>Fixed: </span>
+                <span style={{ color: "#64748b", fontWeight: 600 }}>0</span>
+                <span style={{ color: "#64748b" }}>  Remaining: </span>
+                <span style={{ color: "#f59e0b", fontWeight: 600 }}>{summary.total}</span>
+              </span>
+            )
+          )}
+        </div>
       </div>
     </div>
   );
